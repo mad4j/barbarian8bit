@@ -18,7 +18,7 @@ Any static web server works; there is nothing to install to *play*.
 
 ```
 barbarianC64.bas ──tools/qb2js.mjs──▶ web/js/game.js   (generated, committed)
-C64/ resources   ──tools/build-assets.py──▶ web/assets/ (images.bin + manifest.json, sounds, font)
+C64/ resources   ──tools/naming.mjs + build-assets.py──▶ web/assets/ (English file names)
                                         web/js/runtime.js  hand-written QB64 runtime
 ```
 
@@ -42,12 +42,26 @@ C64/ resources   ──tools/build-assets.py──▶ web/assets/ (images.bin + 
 ## Rebuilding
 
 ```
-npm run build        # assets (needs Python + Pillow) and game.js (needs Node 18+)
+npm run build        # names, assets (needs Python + Pillow) and game.js (needs Node 18+)
 npm test             # checks that web/js/game.js is in sync with the .bas source
 ```
 
-Resource file names are lower-cased in `web/assets` because the QB64 source refers to them with a
-different letter case than on disk and web servers are case sensitive.
+## English naming
+
+The original source and resources are French (`debout`, `joueurA$`, `tombe1.gif`, …). The port renames
+everything to English from a single vocabulary, [`tools/fr-en.json`](../tools/fr-en.json), applied by
+[`tools/naming.mjs`](../tools/naming.mjs):
+
+* variables → `s_playerA`, `v_refTime`, `v_xHeadA`, …; labels (comments in `game.js`) → `keyboard`, `damage`, …;
+* state strings → `"standing"`, `"walk1Rev"`, `"rollForward"`, `"deadBeheading"`, `"yes"` / `"no"`, … (`R` suffix = mirrored, `Rev`);
+* asset files → `sprites/…/standing.gif`, `stage/throne.gif`, `sound/behead.ogg`, `menu/title.png`, …
+  (full list in [`tools/asset-names.json`](../tools/asset-names.json)).
+
+File names and the paths inside `game.js` come from the same module, so they always match; the build
+fails on any French word that is not in the dictionary, and on name collisions. Text shown to the player
+is never translated. The files under `_resources/` stay untouched.
+The few names whose meaning depends on context are listed under `overrides` in the dictionary
+(e.g. `xFA` → `xForeheadA`, `F`orehead / `T`/head / `M`/body / `G`/knee).
 
 ## Controls
 

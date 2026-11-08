@@ -4,9 +4,10 @@
   "description": "HTML5 port of the QB64 remake of Barbarian (C64), translated from the original source",
   "type": "module",
   "scripts": {
+    "build:names": "node tools/naming.mjs _resources/barbarianC64/C64 tools/asset-names.json",
     "build:assets": "python tools/build-assets.py",
     "build:game": "node tools/qb2js.mjs _resources/barbarianC64/source/barbarianC64.bas web/js/game.js",
-    "build": "npm run build:assets && npm run build:game",
+    "build": "npm run build:names && npm run build:assets && npm run build:game",
     "test": "node tools/qb2js.mjs _resources/barbarianC64/source/barbarianC64.bas web/js/game.js --check",
     "serve": "python -m http.server 8080 --directory web"
   }

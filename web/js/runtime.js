@@ -50,7 +50,7 @@ const ARROWS = Object.fromEntries(Object.entries({
   27: [0x00, 0x30, 0x60, 0xfe, 0x60, 0x30, 0x00, 0x00],
 }).map(([code, rows]) => [code, rows.map(reverseBits)]));
 
-const norm = (p) => String(p).replace(/\\/g, '/').replace(/^\.\//, '').toLowerCase();
+const norm = (p) => String(p).replace(/\\/g, '/').replace(/^\.\//, '');
 
 const TTF_ROW_HEIGHT = 18;
 // Calibrated so that the 18px Zepto digits sit inside the 39..51 HUD strip.

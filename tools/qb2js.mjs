@@ -14,6 +14,7 @@
  *   --check  do not write; fail if <output.js> differs from the fresh translation
  */
 import { readFileSync, writeFileSync } from 'node:fs';
+import { translate, translateOrKeep, unresolved } from './naming.mjs';
 
 const args = process.argv.slice(2);
 const check = args.includes('--check');
@@ -84,8 +85,38 @@ const CONSTANTS = {
   '_off': 'rt.OFF', '_middle': 'rt.MIDDLE',
 };
 
+const assetNames = JSON.parse(readFileSync(new URL('./asset-names.json', import.meta.url), 'utf8'));
+const nameOrigins = new Map();
+
+function claim(english, french, what) {
+  const key = `${what}:${english}`;
+  const prev = nameOrigins.get(key);
+  if (prev && prev !== french) throw new Error(`${what} name collision: '${prev}' and '${french}' -> '${english}'`);
+  nameOrigins.set(key, french);
+  return english;
+}
+
 function varName(id) {
-  return id.endsWith('$') ? `s_${id.slice(0, -1)}` : `v_${id.replace(/[%&!#]$/, '')}`;
+  const base = id.replace(/[$%&!#]$/, '');
+  const english = claim(translateOrKeep(base, 'variable'), base, 'variable');
+  return `${id.endsWith('$') ? 's' : 'v'}_${english}`;
+}
+
+// Translates a string literal: asset paths via the generated file map, state
+// words (e.g. "debout") via the dictionary. Anything else is left untouched.
+function stringLiteral(value) {
+  if (/^C64\//i.test(value)) {
+    const mapped = assetNames[value.slice(4).toLowerCase()];
+    if (mapped) return `C64/${mapped}`;
+    // referenced by the original program but absent from its resources (a silent no-op there)
+    const m = /^(.*\/)([^/.]+)(\.\w+)$/.exec(value);
+    return m ? m[1] + translateOrKeep(m[2], `missing file ${value}`) + m[3] : value;
+  }
+  if (/^[A-Za-z][A-Za-z0-9]*$/.test(value)) {
+    const english = translate(value);
+    if (english !== null) return claim(english, value, 'string');
+  }
+  return value;
 }
 
 class Translator {
@@ -180,7 +211,7 @@ class Translator {
     const t = this.next();
     if (!t) this.fail('unexpected end of expression');
     if (t.t === 'num') return t.v;
-    if (t.t === 'str') return JSON.stringify(t.v);
+    if (t.t === 'str') return JSON.stringify(this.inPrint ? t.v : stringLiteral(t.v));
     if (t.t === 'op' && t.v === '(') {
       const e = this.expr();
       this.expectOp(')');
@@ -307,11 +338,13 @@ class Translator {
       case 'PRINT': {
         const items = [];
         let newline = true;
+        this.inPrint = true; // printed text is user-visible: never translated
         while (!this.atEnd() && !this.isOp(':') && !this.isKw('ELSE')) {
           if (this.isOp(';') || this.isOp(',')) { this.next(); newline = false; continue; }
           items.push(this.expr());
           newline = true;
         }
+        this.inPrint = false;
         return `rt.print([${items.join(', ')}], ${newline});`;
       }
       case 'LINE': {
@@ -393,7 +426,7 @@ class Translator {
       // label definition
       if (this.toks.length >= 2 && this.toks[0].t === 'id' && this.isOp(':', 1)
           && !KEYWORD_LABEL_EXCLUDE.has(this.toks[0].v)) {
-        this.out.push(`case ${this.labelId(this.toks[0].v)}: // ${this.toks[0].v}`);
+        this.out.push(`case ${this.labelId(this.toks[0].v)}: // ${translateOrKeep(this.toks[0].v, 'label')}`);
         this.p = 2;
       }
       this.line();
@@ -489,6 +522,10 @@ class Translator {
 const source = readFileSync(inputPath, 'latin1');
 const tr = new Translator(source);
 tr.translate();
+if (unresolved.size) {
+  console.error('untranslated French names (add them to tools/fr-en.json):\n  ' + [...unresolved].join('\n  '));
+  process.exit(1);
+}
 const output = tr.emit();
 if (check) {
   let current = '';
