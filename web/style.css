@@ -1,0 +1,131 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: #ccc;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#stage {
+  position: relative;
+  /* leave room for the help line below the screen */
+  width: min(100vw, calc((100dvh - 2.5rem) * 1.6));
+  aspect-ratio: 8 / 5;
+  background: #000;
+}
+
+#stage:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  aspect-ratio: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#screen {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  outline: none;
+  display: block;
+}
+
+#stage:fullscreen #screen {
+  width: min(100vw, 160vh);
+  height: auto;
+  aspect-ratio: 8 / 5;
+}
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.85);
+  text-align: center;
+}
+
+#overlay[hidden] { display: none; }
+
+#overlay h1 {
+  margin: 0;
+  letter-spacing: 0.3em;
+  color: #e6c34a;
+}
+
+#overlay button {
+  font: inherit;
+  font-size: 1.2rem;
+  padding: 0.5rem 2rem;
+  cursor: pointer;
+}
+
+#fs {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  opacity: 0.35;
+  background: #000;
+  color: #fff;
+  border: 1px solid #555;
+  cursor: pointer;
+}
+
+#fs:hover { opacity: 1; }
+
+#help {
+  margin: 0.5rem;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+body:has(#stage:fullscreen) #help { display: none; }
+
+#touch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.4rem;
+  box-sizing: border-box;
+  touch-action: none;
+  user-select: none;
+}
+
+#touch[hidden] { display: none; }
+
+#touch div {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: center;
+}
+
+#touch button {
+  flex: 1 1 0;
+  max-width: 5.5rem;
+  min-height: 2.6rem;
+  font: inherit;
+  background: #222;
+  color: #eee;
+  border: 1px solid #666;
+  border-radius: 6px;
+  touch-action: none;
+}
+
+#touch button.on { background: #b52; }
+
+body.touch #help { display: none; }
+body.touch #stage { width: min(100vw, calc((100dvh - 8.5rem) * 1.6)); }

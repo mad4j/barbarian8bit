@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Barbarian C64</title>
+  <link rel="icon" href="assets/favicon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stage">
+    <canvas id="screen" width="320" height="200" tabindex="0"></canvas>
+
+    <div id="overlay">
+      <h1>BARBARIAN</h1>
+      <p id="status">Loading…</p>
+      <button id="start" hidden>Start</button>
+    </div>
+
+    <button id="fs" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+  </div>
+
+  <div id="touch" hidden></div>
+
+
+  <p id="help">
+    Player A: arrows + Shift &nbsp;·&nbsp; Player B: I J K L + Space &nbsp;·&nbsp;
+    Menu: 0–7 &nbsp;·&nbsp; Esc: abort &nbsp;·&nbsp; Gamepads supported
+  </p>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
