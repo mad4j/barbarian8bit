@@ -57,13 +57,13 @@ const TTF_ROW_HEIGHT = 18;
 const TTF_BASELINE = 15;
 
 export class Runtime {
-  constructor({ canvas, manifest, blob, assetBase = 'assets/' }) {
+  constructor({ canvas, manifest, images, assetBase = 'assets/' }) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.imageData = this.ctx.createImageData(W, H);
     this.pixels32 = new Uint32Array(this.imageData.data.buffer);
     this.manifest = manifest;
-    this.blob = blob;
+    this.assets = images; // decoded PNGs, keyed by the original asset paths
     this.assetBase = assetBase;
 
     this.KEEPBACKGROUND = 1;
@@ -197,7 +197,7 @@ export class Runtime {
   // ------------------------------------------------------------ images
   loadimage(path, mode) {
     const key = norm(path);
-    const asset = this.manifest.images[key];
+    const asset = this.assets[key];
     if (!asset) return -1;
     const want8 = mode === 256 && asset.k === 'p';
     const cacheKey = `${key}|${want8 ? 8 : 32}`;
@@ -206,7 +206,7 @@ export class Runtime {
     const { w, h } = asset;
     let img;
     if (asset.k === 'p') {
-      const idx = new Uint8Array(this.blob, asset.o, w * h);
+      const { idx } = asset;
       const pal = new Uint8Array(768);
       pal.set(asset.pal);
       if (want8) {
@@ -220,7 +220,7 @@ export class Runtime {
         img = { kind: 32, w, h, rgba, clearRGB: -1 };
       }
     } else {
-      const bytes = new Uint8Array(this.blob, asset.o, w * h * 4);
+      const { bytes } = asset;
       const rgba = new Uint32Array(w * h);
       for (let i = 0; i < rgba.length; i++) {
         const a = bytes[i * 4 + 3];

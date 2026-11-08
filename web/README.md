@@ -20,7 +20,7 @@ Any static web server works; there is nothing to install to *play*.
 ```
 web/js/game.js     game logic (originally translated from barbarianC64.bas, now hand-maintained)
 web/js/runtime.js  hand-written QB64 runtime
-web/assets/        packed images (images.bin + manifest.json), sounds and font (committed)
+web/assets/        images (indexed/RGBA PNGs + manifest.json), sounds and font (committed)
 ```
 
 * **`web/js/game.js`** – the game program. The original is one large `GOTO` state machine
@@ -36,6 +36,10 @@ web/assets/        packed images (images.bin + manifest.json), sounds and font (
   * 8×8 bitmap text (`LOCATE`/`PRINT`/`COLOR`) and TrueType text (`_LOADFONT`/`_FONT`) for the HUD;
   * `_KEYDOWN`, `INKEY$`, `STICK`/`STRIG` (Gamepad API), `_SNDPLAYFILE`/`_SNDOPEN`/`_SNDLOOP`/`_SNDSTOP`
     (Web Audio), fullscreen, and the 40 fps `_LIMIT` scheduler.
+* **`web/js/png.js`** – minimal PNG decoder (8-bit indexed and RGBA): the sprites are stored as
+  indexed-colour PNGs and the browser's own decoder would expand them to RGBA, losing the palette
+  indices the original's colour tricks rely on. All images are fetched and decoded up front so
+  `_LOADIMAGE` can stay synchronous.
 * **`web/js/font8x8.js`** – public-domain IBM 8×8 font ([dhepper/font8x8](https://github.com/dhepper/font8x8)).
 * On-screen buttons are shown on touch devices (player A only).
 

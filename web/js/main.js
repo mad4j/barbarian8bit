@@ -1,4 +1,5 @@
 import { Runtime } from './runtime.js';
+import { decodePng } from './png.js';
 import { program } from './game.js';
 
 const $ = (id) => document.getElementById(id);
@@ -47,11 +48,14 @@ function buildTouchControls(rt) {
 }
 
 async function boot() {
-  const [manifest, blob] = await Promise.all([
-    fetch('assets/manifest.json').then((r) => r.json()),
-    fetch('assets/images.bin').then((r) => r.arrayBuffer()),
-  ]);
-  const rt = new Runtime({ canvas, manifest, blob });
+  const manifest = await fetch('assets/manifest.json').then((r) => r.json());
+  const images = {};
+  await Promise.all(Object.entries(manifest.images).map(async ([key, file]) => {
+    const res = await fetch(`assets/${file}`);
+    if (!res.ok) throw new Error(`cannot load ${file}`);
+    images[key] = await decodePng(await res.arrayBuffer());
+  }));
+  const rt = new Runtime({ canvas, manifest, images });
   await rt.preloadFonts();
   rt.onFullscreen = toggleFullscreen;
   globalThis.barbarian = rt; // handy for debugging in the console
