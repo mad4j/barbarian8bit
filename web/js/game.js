@@ -1,6 +1,7 @@
 // Originally translated from barbarianC64.bas (QB64); now maintained by hand.
 /* eslint-disable */
 export function* program(rt) {
+  let s_cheatWin = "no";
   let s_aBusy = "", s_attackA = "", s_attackB = "", s_bBusy = "", s_beheadA = "", s_beheadB = "", s_bloodA = "", s_bloodB = "", s_bonusA = "", s_bonusB = "", s_country = "", s_credits = "", s_demo = "", s_direction = "", s_directionImageA = "", s_directionImageB = "", s_entry = "", s_entryWizard = "", s_exitA = "", s_exitB = "", s_finishedLaughing = "", s_football = "", s_fullscreen = "", s_game = "", s_gnome = "", s_gnomeLaughs = "", s_gnomePulls = "", s_launchMusic = "", s_marianna = "", s_memory = "", s_mode = "", s_playerA = "", s_playerB = "", s_protectBodyA = "", s_protectBodyB = "", s_protectHeadA = "", s_protectHeadB = "", s_repeatMusic = "", s_sitA = "", s_sitB = "", s_snakeA = "", s_snakeB = "", s_soundLaughs = "", s_spriteA = "", s_spriteB = "", s_stage = "", s_stick1 = "", s_stick2 = "", s_stop = "", s_timeFinished = "", s_transition = "", s_transitionFinished = "", s_version = "", s_wizard = "", v_a1 = 0, v_a2 = 0, v_a3 = 0, v_a4 = 0, v_ai = 0, v_b1 = 0, v_b2 = 0, v_b3 = 0, v_b4 = 0, v_background = 0, v_bloodBeheadingA = 0, v_bloodBeheadingB = 0, v_countdown = 0, v_distance = 0, v_gnomeNumber = 0, v_headNumber = 0, v_imageA = 0, v_imageB = 0, v_infoADamageForehead = 0, v_infoADamageHead = 0, v_infoADamageKnee = 0, v_infoAStrike = 0, v_infoBDamageForehead = 0, v_infoBDamageHead = 0, v_infoBDamageKnee = 0, v_infoBStrike = 0, v_lifeA = 0, v_lifeB = 0, v_object = 0, v_palaceFont = 0, v_refTime = 0, v_refTimeB = 0, v_scoreA = 0, v_scoreB = 0, v_snake = 0, v_spriteAdvanceA = 0, v_spriteAdvanceB = 0, v_spriteGnome = 0, v_spriteHead = 0, v_spriteRetreatA = 0, v_spriteRetreatB = 0, v_spriteShadow = 0, v_stage = 0, v_theme = 0, v_tick = 0, v_time = 0, v_treeLeft = 0, v_treeRight = 0, v_waitingA = 0, v_waitingB = 0, v_x1 = 0, v_x2 = 0, v_xA = 0, v_xAttackA = 0, v_xAttackB = 0, v_xB = 0, v_xBlood1 = 0, v_xBlood2 = 0, v_xBodyA = 0, v_xBodyB = 0, v_xFire = 0, v_xForeheadA = 0, v_xForeheadB = 0, v_xGnome = 0, v_xHeadA = 0, v_xHeadB = 0, v_xHeadSprite = 0, v_xKneeA = 0, v_xKneeB = 0, v_xSpurt = 0, v_y1 = 0, v_y2 = 0, v_yAttackA = 0, v_yAttackB = 0, v_yBlood1 = 0, v_yBlood2 = 0, v_yBodyA = 0, v_yBodyB = 0, v_yFire = 0, v_yForeheadA = 0, v_yForeheadB = 0, v_yHeadA = 0, v_yHeadB = 0, v_yHeadSprite = 0, v_yKneeA = 0, v_yKneeB = 0, v_ySpurt = 0;
   let pc = 0;
   main: for (;;) {
@@ -368,6 +369,7 @@ export function* program(rt) {
       s_finishedLaughing = "no";
       s_transition = "no";
       s_transitionFinished = "no";
+      s_cheatWin = "no";
       s_attackA = "no";
       s_attackB = "no";
       case 13: // stage
@@ -495,6 +497,11 @@ export function* program(rt) {
       case 14: // start
       if (rt.keydown(27)) { s_stop = "yes"; } else { s_stop = "no"; }
       v_time = (v_time + 1);
+      // Debug cheat: hold W+N to win the current level at once.
+      if ((rt.keydown(119) && rt.keydown(110) && (s_game === "inProgress"))) {
+        if ((s_wizard === "yes")) { v_xA = 28; } else { s_cheatWin = "yes"; }
+      }
+      if (((s_cheatWin === "yes") && (s_wizard === "no"))) { s_exitA = "yes"; v_xA = 1; v_xB = 39; }
       if ((s_game === "won")) { { pc = 15; continue main; } }
       if ((s_playerA === "victory")) { { pc = 18; continue main; } }
       if (!((s_marianna === "yes"))) { pc = 98; continue main; }
@@ -558,7 +565,7 @@ export function* program(rt) {
       if ((v_ai === 7)) { s_transitionFinished = "yes"; }
       if ((s_transitionFinished === "yes")) { v_ai = (v_ai + 1); }
       if (!((v_ai > 7))) { pc = 128; continue main; }
-      v_ai = 7; s_wizard = "yes";
+      v_ai = 7; s_wizard = "yes"; s_cheatWin = "no";
       s_direction = "normal";
       s_playerB = "wizard"; s_playerA = "standing";
       v_xA = 1; v_xB = 33;
@@ -571,7 +578,8 @@ export function* program(rt) {
       case 127:
       if (!((s_transitionFinished === "yes"))) { pc = 130; continue main; }
       if ((s_stage === "throne")) { s_stage = "arena"; { pc = 12; continue main; } }
-      if ((s_stage === "arena")) { s_stage = "throne"; { pc = 12; continue main; } }
+      if ((s_stage === "arena")) { s_stage = "torture"; { pc = 12; continue main; } }
+      if ((s_stage === "torture")) { s_stage = "throne"; { pc = 12; continue main; } }
       case 130:
       case 129:
       if ((s_wizard === "no")) { s_transition = "yes"; v_refTime = v_time; { pc = 18; continue main; } }
@@ -635,7 +643,7 @@ export function* program(rt) {
       { pc = 12; continue main; }
       case 156:
       case 155:
-      if (!((s_stage === "arena"))) { pc = 158; continue main; }
+      if (!(((s_stage === "arena") || (s_stage === "torture")))) { pc = 158; continue main; }
       if ((s_transition === "yes")) { { pc = 18; continue main; } }
       if (!((s_transitionFinished === "yes"))) { pc = 160; continue main; }
       v_ai = 0; v_scoreA = 0; v_scoreB = 0;

@@ -64,6 +64,9 @@ Menu: `0`–`7`, `Enter`/`Esc` to leave sub-screens, `Esc` aborts a game. Gamepa
 players A and B. Note: the in-game CONTROLS screen of the original lists the player B keys in the wrong
 order; the keys above are the ones the code actually reads.
 
+Debug cheat: hold `W` + `N` during a fight to win the current level at once (in the final wizard fight
+it makes player A walk to Marianna). In 1-player mode the stages rotate throne → arena → torture room.
+
 ## Credits and legal
 
 Game design and original game: Steve Brown, Stan Schembri, Richard Joseph, Gary Carr, Daniel Malone
