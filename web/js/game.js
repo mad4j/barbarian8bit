@@ -66,8 +66,8 @@ export function* program(rt) {
       rt.locate(15, 13); rt.print(["    SELECT STAGE "], true);
       rt.locate(16, 9); rt.print(["                         "], true);
       rt.locate(17, 9); rt.print(["     1- WASTELAND-FOREST "], true);
-      rt.locate(18, 9); rt.print(["                         "], true);
-      rt.locate(19, 9); rt.print(["     2- THRONE-ARENA     "], true);
+      rt.locate(18, 9); rt.print(["     2- THRONE-ARENA     "], true);
+      rt.locate(19, 9); rt.print(["     3- TORTURE ROOM     "], true);
       rt.locate(20, 9); rt.print(["                         "], true);
       rt.locate(21, 9); rt.print(["        6- BACK          "], true);
       rt.locate(22, 9); rt.print(["                         "], true);
@@ -75,6 +75,7 @@ export function* program(rt) {
       yield rt.sleep();
       if (rt.keydown(49)) { s_stage = "plain"; { pc = 12; continue main; } }
       if (rt.keydown(50)) { s_stage = "throne"; { pc = 12; continue main; } }
+      if (rt.keydown(51)) { s_stage = "torture"; { pc = 12; continue main; } }
       if (rt.keydown(54)) { { pc = 2; continue main; } } else { { pc = 3; continue main; } }
       case 4: // options
       rt.color(15, undefined);
@@ -408,6 +409,14 @@ export function* program(rt) {
       v_treeRight = rt.loadimage("C64/stage/arenaTreeRight.gif", 256);
       case 73:
       case 72:
+      if ((s_stage === "torture")) {
+        v_stage = rt.loadimage("C64/stage/torture.gif", 256);
+        rt.copypalette(v_stage, undefined);
+        rt.putimage(v_stage, undefined, undefined, undefined, undefined);
+        v_background = rt.loadimage("C64/stage/tortureBackground.gif", 256);
+        v_treeLeft = rt.loadimage("C64/stage/arenaTreeLeft.gif", 256);
+        v_treeRight = rt.loadimage("C64/stage/arenaTreeRight.gif", 256);
+      }
       if (!(((s_mode === "solo") && (s_demo === "no")))) { pc = 75; continue main; }
       v_stage = rt.loadimage("C64/stage/1PLR.gif");
       rt.putimage(v_stage, 142, 192, undefined, undefined);
@@ -577,6 +586,7 @@ export function* program(rt) {
       if ((s_stage === "arena")) { s_stage = "throne"; { pc = 12; continue main; } }
       if ((s_stage === "plain")) { s_stage = "forest"; { pc = 12; continue main; } }
       if ((s_stage === "forest")) { s_stage = "plain"; { pc = 12; continue main; } }
+      if ((s_stage === "torture")) { { pc = 12; continue main; } }
       case 134:
       case 133:
       s_transition = "yes"; v_refTime = v_time; { pc = 18; continue main; }
@@ -646,6 +656,7 @@ export function* program(rt) {
       if ((s_stage === "arena")) { s_stage = "throne"; { pc = 12; continue main; } }
       if ((s_stage === "plain")) { s_stage = "forest"; { pc = 12; continue main; } }
       if ((s_stage === "forest")) { s_stage = "plain"; { pc = 12; continue main; } }
+      if ((s_stage === "torture")) { { pc = 12; continue main; } }
       case 164:
       case 163:
       s_transition = "yes"; v_refTime = v_time; { pc = 18; continue main; }
@@ -4564,6 +4575,14 @@ export function* program(rt) {
       case 1223:
       case 36: // display
       rt.putimage(v_background, 32, 96, undefined, undefined);
+      if ((s_stage === "torture")) {
+        const flameSeq = [0, 2, 1, 3, 2, 0, 3, 1];
+        const torchX = [72, 128, 192, 248];
+        for (let i = 0; i < 4; i++) {
+          const f = flameSeq[((v_time >> 2) + i * 3) & 7] + 1;
+          rt.putimage(rt.loadimage("C64/stage/torch" + f + ".gif", 256), torchX[i] - 16, 96, undefined, undefined);
+        }
+      }
       if (!((s_transition === "yes"))) { pc = 1230; continue main; }
       rt.color(0, undefined);
       if (!((v_time > (v_refTime + 55)))) { pc = 1232; continue main; }

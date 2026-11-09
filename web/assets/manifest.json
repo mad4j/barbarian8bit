@@ -164,7 +164,13 @@
   "C64/stage/snakeB3.gif": "C64/stage/snakeB3.png",
   "C64/stage/thanks.png": "C64/stage/thanks.png",
   "C64/stage/throne.gif": "C64/stage/throne.png",
-  "C64/stage/throneBackground.gif": "C64/stage/throneBackground.png"
+  "C64/stage/throneBackground.gif": "C64/stage/throneBackground.png",
+  "C64/stage/torture.gif": "C64/stage/torture.png",
+  "C64/stage/tortureBackground.gif": "C64/stage/tortureBackground.png",
+  "C64/stage/torch1.gif": "C64/stage/torch1.png",
+  "C64/stage/torch2.gif": "C64/stage/torch2.png",
+  "C64/stage/torch3.gif": "C64/stage/torch3.png",
+  "C64/stage/torch4.gif": "C64/stage/torch4.png"
  },
  "files": [
   "C64/menu/zepto.ttf",
