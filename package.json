@@ -4,6 +4,6 @@
   "description": "HTML5 port of the QB64 remake of Barbarian (C64), originally translated from the QB64 source",
   "type": "module",
   "scripts": {
-    "serve": "python -m http.server 8080 --directory web"
+    "serve": "python -m http.server 8080"
   }
 }
