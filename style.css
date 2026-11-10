@@ -38,6 +38,9 @@ body {
   image-rendering: pixelated;
   outline: none;
   display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 #stage:fullscreen #screen {
@@ -64,6 +67,18 @@ body {
   margin: 0;
   letter-spacing: 0.3em;
   color: #e6c34a;
+}
+
+#overlay .hint {
+  display: none;
+  margin: 0;
+  padding: 0 1rem;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+@media (pointer: coarse) {
+  #overlay .hint { display: block; }
 }
 
 #overlay button {

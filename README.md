@@ -41,6 +41,7 @@ assets/        images (indexed/RGBA PNGs + manifest.json), sounds and font (comm
   indices the original's colour tricks rely on. All images are fetched and decoded up front so
   `_LOADIMAGE` can stay synchronous.
 * **`js/font8x8.js`** – public-domain IBM 8×8 font ([dhepper/font8x8](https://github.com/dhepper/font8x8)).
+* **`js/gestures.js`** – touch gestures on the game screen, mapped onto player A's keys (see Controls).
 * On-screen buttons are shown on touch devices (player A only).
 
 ## English naming
@@ -61,7 +62,18 @@ never translated.
 | Attack | `Shift` | `Space` |
 
 Menu: `0`–`7`, `Enter`/`Esc` to leave sub-screens, `Esc` aborts a game. Gamepads 1 and 2 are mapped to
-players A and B. Note: the in-game CONTROLS screen of the original lists the player B keys in the wrong
+players A and B.
+
+Touch gestures on the game screen (player A; also available next to the on-screen buttons):
+
+| Gesture | Action |
+|---|---|
+| Drag | floating 8-way joystick: walk / jump / crouch, diagonals included |
+| Tap | attack (`Shift`), also `Enter` to leave sub-screens |
+| Extra finger down while another one is dragging | attack, held while the finger stays down |
+| Two-finger tap | `Esc` (abort the game / go back) |
+
+Note: the in-game CONTROLS screen of the original lists the player B keys in the wrong
 order; the keys above are the ones the code actually reads.
 
 Debug cheat: hold `W` + `N` during a fight to win the current level at once (in the final wizard fight

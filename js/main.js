@@ -1,5 +1,6 @@
 import { Runtime } from './runtime.js';
 import { decodePng } from './png.js';
+import { attachGestures } from './gestures.js';
 import { program } from './game.js';
 
 const $ = (id) => document.getElementById(id);
@@ -76,6 +77,7 @@ async function boot() {
     await rt.loadSounds();
     overlay.hidden = true;
     rt.attachInput(window);
+    attachGestures(rt, canvas);
     if (matchMedia('(pointer: coarse)').matches) buildTouchControls(rt);
     canvas.focus();
     rt.start(program);
