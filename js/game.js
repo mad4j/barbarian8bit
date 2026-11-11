@@ -4591,6 +4591,25 @@ export function* program(rt) {
           rt.putimage(rt.loadimage("C64/stage/torch" + f + ".gif", 256), torchX[i] - 16, 96, undefined, undefined);
         }
       }
+      if ((s_stage === "arena")) {
+        const frames = [
+          ["..o..", "..y..", ".oyo.", ".oyo.", "oyyyo", "oyyyo", ".oyo."],
+          [".o...", ".y...", ".yo..", "oyyo.", "oyyyo", "oyyyo", ".oyo."],
+          ["...o.", "...y.", "..oy.", ".oyyo", "oyyyo", "oyyyo", ".oyo."],
+          [".....", "..o..", "..y..", ".oyo.", "oyyyo", "oyyyo", ".oyo."]
+        ];
+        const order = [0, 1, 0, 3, 2, 3, 1, 2];
+        [[56, 0], [262, 3]].forEach(([cx, ph]) => {
+          const fr = frames[order[((v_time >> 2) + ph) & 7]];
+          rt.line(cx - 4, 81, cx + 5, 87, 11, "BF");
+          for (let r = 0; r < 7; r++) {
+            for (let c = 0; c < 5; c++) {
+              const ch = fr[r][c];
+              if (ch !== ".") { const x = cx + (c - 2) * 2; rt.line(x, 81 + r, x + 1, 81 + r, ch === "y" ? 7 : 8, "BF"); }
+            }
+          }
+        });
+      }
       if (!((s_transition === "yes"))) { pc = 1230; continue main; }
       rt.color(0, undefined);
       if (!((v_time > (v_refTime + 55)))) { pc = 1232; continue main; }
