@@ -22,13 +22,9 @@ body {
   background: #000;
 }
 
-#stage:fullscreen {
-  width: 100vw;
-  height: 100vh;
-  aspect-ratio: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* the whole page goes fullscreen, so the touch controls stay available */
+html:fullscreen body:not(.touch) #stage {
+  width: min(100vw, 160dvh);
 }
 
 #screen {
@@ -41,12 +37,6 @@ body {
   touch-action: none;
   user-select: none;
   -webkit-touch-callout: none;
-}
-
-#stage:fullscreen #screen {
-  width: min(100vw, 160vh);
-  height: auto;
-  aspect-ratio: 8 / 5;
 }
 
 #overlay {
@@ -107,7 +97,7 @@ body {
   color: #888;
 }
 
-body:has(#stage:fullscreen) #help { display: none; }
+html:fullscreen #help { display: none; }
 
 body {
   --dpad: 7rem;
