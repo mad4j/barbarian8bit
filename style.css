@@ -143,4 +143,4 @@ body:has(#stage:fullscreen) #help { display: none; }
 #touch button.on { background: #b52; }
 
 body.touch #help { display: none; }
-body.touch #stage { width: min(100vw, calc((100dvh - 8.5rem) * 1.6)); }
+body.touch #stage { width: min(100vw, calc((100dvh - 6rem) * 1.6)); }

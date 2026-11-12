@@ -1,304 +1,32 @@
 // Originally translated from barbarianC64.bas (QB64); now maintained by hand.
 /* eslint-disable */
+import { StartMenu } from './menu/startMenu.js';
+
 export function* program(rt) {
   let s_cheatWin = "no";
-  let s_aBusy = "", s_attackA = "", s_attackB = "", s_bBusy = "", s_beheadA = "", s_beheadB = "", s_bloodA = "", s_bloodB = "", s_bonusA = "", s_bonusB = "", s_country = "", s_credits = "", s_demo = "", s_direction = "", s_directionImageA = "", s_directionImageB = "", s_entry = "", s_entryWizard = "", s_exitA = "", s_exitB = "", s_finishedLaughing = "", s_football = "", s_fullscreen = "", s_game = "", s_gnome = "", s_gnomeLaughs = "", s_gnomePulls = "", s_launchMusic = "", s_marianna = "", s_memory = "", s_mode = "", s_playerA = "", s_playerB = "", s_protectBodyA = "", s_protectBodyB = "", s_protectHeadA = "", s_protectHeadB = "", s_repeatMusic = "", s_sitA = "", s_sitB = "", s_snakeA = "", s_snakeB = "", s_soundLaughs = "", s_spriteA = "", s_spriteB = "", s_stage = "", s_stick1 = "", s_stick2 = "", s_stop = "", s_timeFinished = "", s_transition = "", s_transitionFinished = "", s_version = "", s_wizard = "", v_a1 = 0, v_a2 = 0, v_a3 = 0, v_a4 = 0, v_ai = 0, v_b1 = 0, v_b2 = 0, v_b3 = 0, v_b4 = 0, v_background = 0, v_bloodBeheadingA = 0, v_bloodBeheadingB = 0, v_countdown = 0, v_distance = 0, v_gnomeNumber = 0, v_headNumber = 0, v_imageA = 0, v_imageB = 0, v_infoADamageForehead = 0, v_infoADamageHead = 0, v_infoADamageKnee = 0, v_infoAStrike = 0, v_infoBDamageForehead = 0, v_infoBDamageHead = 0, v_infoBDamageKnee = 0, v_infoBStrike = 0, v_lifeA = 0, v_lifeB = 0, v_object = 0, v_palaceFont = 0, v_refTime = 0, v_refTimeB = 0, v_scoreA = 0, v_scoreB = 0, v_snake = 0, v_spriteAdvanceA = 0, v_spriteAdvanceB = 0, v_spriteGnome = 0, v_spriteHead = 0, v_spriteRetreatA = 0, v_spriteRetreatB = 0, v_spriteShadow = 0, v_stage = 0, v_theme = 0, v_tick = 0, v_time = 0, v_treeLeft = 0, v_treeRight = 0, v_waitingA = 0, v_waitingB = 0, v_x1 = 0, v_x2 = 0, v_xA = 0, v_xAttackA = 0, v_xAttackB = 0, v_xB = 0, v_xBlood1 = 0, v_xBlood2 = 0, v_xBodyA = 0, v_xBodyB = 0, v_xFire = 0, v_xForeheadA = 0, v_xForeheadB = 0, v_xGnome = 0, v_xHeadA = 0, v_xHeadB = 0, v_xHeadSprite = 0, v_xKneeA = 0, v_xKneeB = 0, v_xSpurt = 0, v_y1 = 0, v_y2 = 0, v_yAttackA = 0, v_yAttackB = 0, v_yBlood1 = 0, v_yBlood2 = 0, v_yBodyA = 0, v_yBodyB = 0, v_yFire = 0, v_yForeheadA = 0, v_yForeheadB = 0, v_yHeadA = 0, v_yHeadB = 0, v_yHeadSprite = 0, v_yKneeA = 0, v_yKneeB = 0, v_ySpurt = 0;
+  let s_aBusy = "", s_attackA = "", s_attackB = "", s_bBusy = "", s_beheadA = "", s_beheadB = "", s_bloodA = "", s_bloodB = "", s_bonusA = "", s_bonusB = "", s_country = "", s_demo = "", s_direction = "", s_directionImageA = "", s_directionImageB = "", s_entry = "", s_entryWizard = "", s_exitA = "", s_exitB = "", s_finishedLaughing = "", s_football = "", s_game = "", s_gnome = "", s_gnomeLaughs = "", s_gnomePulls = "", s_launchMusic = "", s_marianna = "", s_mode = "", s_playerA = "", s_playerB = "", s_protectBodyA = "", s_protectBodyB = "", s_protectHeadA = "", s_protectHeadB = "", s_repeatMusic = "", s_sitA = "", s_sitB = "", s_snakeA = "", s_snakeB = "", s_soundLaughs = "", s_spriteA = "", s_spriteB = "", s_stage = "", s_stick1 = "", s_stick2 = "", s_stop = "", s_timeFinished = "", s_transition = "", s_transitionFinished = "", s_version = "", s_wizard = "", v_a1 = 0, v_a2 = 0, v_a3 = 0, v_a4 = 0, v_ai = 0, v_b1 = 0, v_b2 = 0, v_b3 = 0, v_b4 = 0, v_background = 0, v_bloodBeheadingA = 0, v_bloodBeheadingB = 0, v_countdown = 0, v_distance = 0, v_gnomeNumber = 0, v_headNumber = 0, v_imageA = 0, v_imageB = 0, v_infoADamageForehead = 0, v_infoADamageHead = 0, v_infoADamageKnee = 0, v_infoAStrike = 0, v_infoBDamageForehead = 0, v_infoBDamageHead = 0, v_infoBDamageKnee = 0, v_infoBStrike = 0, v_lifeA = 0, v_lifeB = 0, v_object = 0, v_palaceFont = 0, v_refTime = 0, v_refTimeB = 0, v_scoreA = 0, v_scoreB = 0, v_snake = 0, v_spriteAdvanceA = 0, v_spriteAdvanceB = 0, v_spriteGnome = 0, v_spriteHead = 0, v_spriteRetreatA = 0, v_spriteRetreatB = 0, v_spriteShadow = 0, v_stage = 0, v_tick = 0, v_time = 0, v_treeLeft = 0, v_treeRight = 0, v_waitingA = 0, v_waitingB = 0, v_x1 = 0, v_x2 = 0, v_xA = 0, v_xAttackA = 0, v_xAttackB = 0, v_xB = 0, v_xBlood1 = 0, v_xBlood2 = 0, v_xBodyA = 0, v_xBodyB = 0, v_xFire = 0, v_xForeheadA = 0, v_xForeheadB = 0, v_xGnome = 0, v_xHeadA = 0, v_xHeadB = 0, v_xHeadSprite = 0, v_xKneeA = 0, v_xKneeB = 0, v_xSpurt = 0, v_y1 = 0, v_y2 = 0, v_yAttackA = 0, v_yAttackB = 0, v_yBlood1 = 0, v_yBlood2 = 0, v_yBodyA = 0, v_yBodyB = 0, v_yFire = 0, v_yForeheadA = 0, v_yForeheadB = 0, v_yHeadA = 0, v_yHeadB = 0, v_yHeadSprite = 0, v_yKneeA = 0, v_yKneeB = 0, v_ySpurt = 0;
+  const menu = new StartMenu(rt);
   let pc = 0;
   main: for (;;) {
     switch (pc) {
       case 0:
-      rt.screen(13);
       rt.title("BARBARIAN  C64");
-      s_fullscreen = "no";
-      s_repeatMusic = "no";
-      s_credits = "no";
       v_scoreA = 0;
       v_scoreB = 0;
-      s_memory = "no";
-      s_country = "europe";
-      case 1: // logo
-      rt.screen(13);
-      if ((s_country === "europe")) { v_stage = rt.loadimage("C64/menu/title.png"); }
-      if ((s_country === "USA")) { v_stage = rt.loadimage("C64/menu/titleDS.png"); }
-      rt.putimage(v_stage, undefined, undefined, undefined, undefined);
-      rt.display();
-      if (!((s_memory === "no"))) { pc = 47; continue main; }
-      s_memory = "yes";
-      v_theme = rt.sndopen("C64/sound/theme.ogg", "sync");
       v_palaceFont = rt.loadfont("C64/menu/zepto.ttf", 18);
-      case 47:
-      case 46:
-      if ((s_fullscreen === "no")) { yield rt.sleep(2); }
-      if ((s_fullscreen === "yes")) { yield rt.sleep(4); }
+      yield* menu.logo();
       case 2: // menu
-      s_demo = "no";
-      case 48: // DO
-       if (!((rt.inkey() === ""))) { pc = 48; continue main; }
-      rt.screen(13); rt.cls();
-      if ((s_country === "europe")) { v_stage = rt.loadimage("C64/menu/title.png"); }
-      if ((s_country === "USA")) { v_stage = rt.loadimage("C64/menu/titleDS.png"); }
-      rt.copypalette(undefined, v_stage);
-      rt.putimage(v_stage, undefined, undefined, undefined, undefined);
-      if ((s_country === "USA")) { rt.line(55, 162, 267, 185, 0, "BF"); }
-      case 49: // DO
-      
-      rt.color(15, undefined);
-      rt.locate(15, 13); rt.print(["   0- DEMO           "], true);
-      rt.locate(16, 9); rt.print(["       1- 1 PLAYER       "], true);
-      rt.locate(17, 9); rt.print(["       2- 2 PLAYERS      "], true);
-      rt.locate(18, 9); rt.print(["       3- OPTIONS        "], true);
-      rt.locate(19, 9); rt.print(["       4- CONTROLS       "], true);
-      rt.locate(20, 9); rt.print(["       5- STORY          "], true);
-      rt.locate(21, 9); rt.print(["       6- CREDITS        "], true);
-      rt.locate(22, 9); rt.print(["       7- EXIT           "], true);
-      rt.display();
-      yield rt.sleep();
-      if (rt.keydown(48)) { s_demo = "yes"; s_stage = "plain"; v_ai = 4; s_mode = "solo"; s_wizard = "no"; { pc = 12; continue main; } }
-      if (rt.keydown(49)) { s_stage = "throne"; v_ai = 0; s_mode = "solo"; s_wizard = "no"; { pc = 12; continue main; } }
-      if (rt.keydown(50)) { v_ai = 0; s_mode = "vs"; v_countdown = 60; s_wizard = "no"; { pc = 3; continue main; } }
-      if (rt.keydown(51)) { { pc = 4; continue main; } }
-      if (rt.keydown(52)) { { pc = 8; continue main; } }
-      if (rt.keydown(53)) { { pc = 11; continue main; } }
-      if (rt.keydown(54)) { { pc = 7; continue main; } }
-      if (rt.keydown(55)) { yield rt.system(); return; }
-      { pc = 49; continue main; }
-      case 3: // selectStage
-      rt.color(15, undefined);
-      rt.locate(15, 13); rt.print(["    SELECT STAGE "], true);
-      rt.locate(16, 9); rt.print(["                         "], true);
-      rt.locate(17, 9); rt.print(["     1- WASTELAND-FOREST "], true);
-      rt.locate(18, 9); rt.print(["     2- THRONE-ARENA     "], true);
-      rt.locate(19, 9); rt.print(["     3- TORTURE ROOM     "], true);
-      rt.locate(20, 9); rt.print(["                         "], true);
-      rt.locate(21, 9); rt.print(["        6- BACK          "], true);
-      rt.locate(22, 9); rt.print(["                         "], true);
-      rt.display();
-      yield rt.sleep();
-      if (rt.keydown(49)) { s_stage = "plain"; { pc = 12; continue main; } }
-      if (rt.keydown(50)) { s_stage = "throne"; { pc = 12; continue main; } }
-      if (rt.keydown(51)) { s_stage = "torture"; { pc = 12; continue main; } }
-      if (rt.keydown(54)) { { pc = 2; continue main; } } else { { pc = 3; continue main; } }
-      case 4: // options
-      rt.color(15, undefined);
-      rt.color(15, undefined);
-      rt.locate(15, 13); rt.print(["                    "], true);
-      rt.locate(16, 9); rt.print(["         VERSION        "], true);
-      rt.locate(17, 9); rt.print(["                        "], true);
-      rt.locate(18, 9); rt.print(["                        "], true);
-      rt.locate(19, 9); rt.print(["      1- EUROPE         "], true);
-      rt.locate(20, 9); rt.print(["      2- USA            "], true);
-      rt.locate(21, 9); rt.print(["                        "], true);
-      rt.locate(22, 9); rt.print(["                        "], true);
-      rt.display();
-      yield rt.sleep();
-      if (rt.keydown(49)) { s_country = "europe"; { pc = 5; continue main; } }
-      if (!(rt.keydown(50))) { pc = 51; continue main; }
-      s_country = "USA"; { pc = 5; continue main; }
-      { pc = 50; continue main; }
-      case 51:
-      { pc = 4; continue main; }
-      case 50:
-      case 5: // optionsSounds
-      rt.screen(13); rt.cls();
-      if ((s_country === "europe")) { v_stage = rt.loadimage("C64/menu/title.png"); }
-      if ((s_country === "USA")) { v_stage = rt.loadimage("C64/menu/titleDS.png"); }
-      rt.copypalette(undefined, v_stage);
-      rt.putimage(v_stage, undefined, undefined, undefined, undefined);
-      if ((s_country === "USA")) { rt.line(55, 162, 267, 185, 0, "BF"); }
-      rt.locate(15, 13); rt.print(["                    "], true);
-      rt.locate(16, 9); rt.print(["         SOUND          "], true);
-      rt.locate(17, 9); rt.print(["                        "], true);
-      rt.locate(18, 9); rt.print(["                        "], true);
-      rt.locate(19, 9); rt.print(["    1- SOUND EFFECTS    "], true);
-      rt.locate(20, 9); rt.print(["    2- MUSIC            "], true);
-      rt.locate(21, 9); rt.print(["                        "], true);
-      rt.locate(22, 9); rt.print(["                        "], true);
-      rt.display();
-      yield rt.sleep();
-      if (!(rt.keydown(50))) { pc = 53; continue main; }
-      if ((s_repeatMusic === "yes")) { { pc = 6; continue main; } }
-      s_repeatMusic = "yes";
-      rt.sndloop(v_theme);
-      { pc = 6; continue main; }
-      case 53:
-      case 52:
-      if (!(rt.keydown(49))) { pc = 55; continue main; }
-      if ((s_repeatMusic === "yes")) { rt.sndstop(v_theme); }
-      s_repeatMusic = "no"; s_credits = "no";
-      { pc = 54; continue main; }
-      case 55:
-      { pc = 5; continue main; }
-      case 54:
-      case 6: // optionsScreen
-      rt.color(15, undefined);
-      rt.locate(15, 13); rt.print(["                    "], true);
-      rt.locate(16, 9); rt.print(["         DISPLAY        "], true);
-      rt.locate(17, 9); rt.print(["                        "], true);
-      rt.locate(18, 9); rt.print(["                        "], true);
-      rt.locate(19, 9); rt.print(["    1- FULLSCREEN       "], true);
-      rt.locate(20, 9); rt.print(["    2- WINDOWS MODE     "], true);
-      rt.locate(21, 9); rt.print(["                        "], true);
-      rt.locate(22, 9); rt.print(["                        "], true);
-      rt.display();
-      yield rt.sleep();
-      if (!(rt.keydown(49))) { pc = 57; continue main; }
-      if ((s_fullscreen === "yes")) { { pc = 2; continue main; } }
-      s_fullscreen = "yes";
-      rt.fullscreen();
-      { pc = 1; continue main; }
-      case 57:
-      case 56:
-      if (!(rt.keydown(50))) { pc = 59; continue main; }
-      if (!((s_fullscreen === "yes"))) { pc = 61; continue main; }
-      rt.fullscreen(rt.OFF);
-      s_fullscreen = "no";
-      case 61:
-      case 60:
-      { pc = 1; continue main; }
-      { pc = 58; continue main; }
-      case 59:
-      { pc = 6; continue main; }
-      case 58:
-      case 7: // credits
-      rt.screen(13);
-      rt.cls();
-      v_stage = rt.loadimage("C64/menu/team.png");
-      rt.putimage(v_stage, 0, 0, undefined, undefined);
-      if (!(((s_repeatMusic === "no") && (s_credits === "no")))) { pc = 63; continue main; }
-      rt.sndloop(v_theme);
-      case 63:
-      case 62:
-      rt.color(15, undefined);
-      if ((s_country === "europe")) { rt.locate(2, 21); rt.print(["      BARBARIAN     "], true); }
-      if ((s_country === "USA")) { rt.locate(2, 21); rt.print(["     DEATH SWORD    "], true); }
-      rt.locate(3, 21); rt.print(["   Palace Software  "], true);
-      rt.locate(4, 21); rt.print(["     C64 version    "], true);
-      rt.locate(5, 21); rt.print(["        1987        "], true);
-      rt.locate(6, 21); rt.print(["                    "], true);
-      rt.locate(7, 21); rt.print(["created and designed"], true);
-      rt.locate(8, 21); rt.print(["  by STEVE BROWN    "], true);
-      rt.locate(9, 21); rt.print(["                    "], true);
-      rt.locate(10, 21); rt.print(["   C64 programmer  "], true);
-      rt.locate(11, 21); rt.print(["   STAN SCHEMBRI   "], true);
-      rt.locate(12, 21); rt.print(["                    "], true);
-      rt.locate(13, 21); rt.print(["   CPC programmer   "], true);
-      rt.locate(14, 21); rt.print(["   ANDREW FITTER    "], true);
-      rt.locate(15, 21); rt.print(["                    "], true);
-      rt.locate(16, 21); rt.print(["        music       "], true);
-      rt.locate(17, 21); rt.print(["   RICHARD JOSEPH   "], true);
-      rt.locate(18, 21); rt.print(["                    "], true);
-      rt.locate(19, 21); rt.print(["  assistant artist  "], true);
-      rt.locate(20, 21); rt.print(["      GARY CARR     "], true);
-      rt.locate(21, 21); rt.print(["                    "], true);
-      rt.locate(22, 21); rt.print(["    DANIEL MALONE   "], true);
-      rt.locate(23, 21); rt.print(["                    "], true);
-      rt.locate(24, 1); rt.print(["FL clone http://barbarian.1987.free.fr"], false);
-      rt.display();
-      yield rt.sleep();
-      if (!((rt.keydown(13) || rt.keydown(27)))) { pc = 65; continue main; }
-      if ((s_repeatMusic === "no")) { rt.sndstop(v_theme); }
-      { pc = 2; continue main; }
-      { pc = 64; continue main; }
-      case 65:
-      s_credits = "yes"; { pc = 7; continue main; }
-      case 64:
-      case 8: // controls
-      rt.screen(13);
-      rt.cls();
-      v_stage = rt.loadimage("C64/spritesA/standing.gif");
-      rt.putimage(v_stage, 0, 0, undefined, undefined);
-      v_stage = rt.loadimage("C64/menu/playerB.bmp");
-      rt.putimage(v_stage, 280, 0, undefined, undefined);
-      rt.color(15, undefined); rt.locate(2, 13); rt.print(["CONTROLS KEYS"], true);
-      rt.locate(10, 1); rt.print(["PLAYER A"], true);
-      rt.locate(12, 1); rt.print(["UP............", rt.chr_(24)], true);
-      rt.locate(13, 1); rt.print(["DOWN..........", rt.chr_(25)], true);
-      rt.locate(14, 1); rt.print(["LEFT..........", rt.chr_(27)], true);
-      rt.locate(15, 1); rt.print(["RIGHT.........", rt.chr_(26)], true);
-      rt.locate(17, 1); rt.print(["ATTACK...SHIFT"], true);
-      rt.color(4, undefined); rt.locate(18, 1); rt.print([" or GAMEPAD 1"], true);
-      rt.color(15, undefined);
-      rt.locate(10, 25); rt.print(["        PLAYER B"], true);
-      rt.locate(12, 25); rt.print(["UP.............I"], true);
-      rt.locate(13, 25); rt.print(["DOWN...........J"], true);
-      rt.locate(14, 25); rt.print(["LEFT...........K"], true);
-      rt.locate(15, 25); rt.print(["RIGHT..........L"], true);
-      rt.locate(17, 25); rt.print(["ATTACK.....SPACE"], true);
-      rt.color(4, undefined); rt.locate(18, 27); rt.print([" or GAMEPAD 2"], true);
-      rt.color(15, undefined);
-      rt.locate(20, 10); rt.print(["ABORT GAME...........ESC"], true);
-      rt.locate(22, 10); rt.print(["GOTO MENU..........ENTER"], true);
-      rt.display();
-      yield rt.sleep();
-      if ((rt.keydown(13) || rt.keydown(27))) { { pc = 9; continue main; } } else { { pc = 8; continue main; } }
-      case 9: // controls2
-      rt.cls();
-      rt.color(15, undefined); rt.locate(2, 13); rt.print(["MOVING CONTROLS"], true);
-      v_stage = rt.loadimage("C64/menu/controls1.gif");
-      rt.putimage(v_stage, 100, 40, undefined, undefined);
-      rt.locate(5, 19); rt.print(["jump"], false);
-      rt.locate(7, 8); rt.print(["protect"], false);
-      rt.locate(8, 11); rt.print(["head"], false);
-      rt.locate(7, 27); rt.print(["protect"], false);
-      rt.locate(8, 27); rt.print(["body"], false);
-      rt.locate(12, 9); rt.print(["move"], false);
-      rt.locate(13, 9); rt.print(["back"], true);
-      rt.locate(12, 29); rt.print(["move"], false);
-      rt.locate(13, 29); rt.print(["forward"], true);
-      rt.locate(18, 11); rt.print(["roll"], false);
-      rt.locate(19, 11); rt.print(["back"], false);
-      rt.locate(18, 27); rt.print(["roll"], false);
-      rt.locate(19, 27); rt.print(["front"], false);
-      rt.locate(21, 18); rt.print(["crouch"], true);
-      rt.display();
-      yield rt.sleep();
-      if ((rt.keydown(13) || rt.keydown(27))) { { pc = 10; continue main; } } else { { pc = 9; continue main; } }
-      case 10: // controls3
-      rt.cls();
-      rt.color(15, undefined); rt.locate(2, 13); rt.print(["FIGHTING CONTROLS"], true);
-      rt.color(15, undefined); rt.locate(3, 13); rt.print(["(with attack key)"], true);
-      v_stage = rt.loadimage("C64/menu/controls2.gif");
-      rt.putimage(v_stage, 100, 40, undefined, undefined);
-      rt.locate(5, 16); rt.print(["neck chop"], false);
-      rt.locate(7, 9); rt.print(["web of"], false);
-      rt.locate(8, 9); rt.print(["death"], false);
-      rt.locate(7, 27); rt.print(["head"], false);
-      rt.locate(8, 27); rt.print(["butt"], false);
-      rt.locate(12, 7); rt.print(["flying"], false);
-      rt.locate(13, 9); rt.print(["neck"], false);
-      rt.locate(14, 9); rt.print(["chop"], false);
-      rt.locate(12, 29); rt.print(["body"], false);
-      rt.locate(13, 29); rt.print(["chop"], false);
-      rt.locate(18, 7); rt.print(["overhead"], false);
-      rt.locate(19, 11); rt.print(["chop"], false);
-      rt.locate(19, 27); rt.print(["kick "], false);
-      rt.locate(21, 17); rt.print(["leg chop"], false);
-      rt.display();
-      yield rt.sleep();
-      if ((rt.keydown(13) || rt.keydown(27))) { { pc = 2; continue main; } } else { { pc = 10; continue main; } }
-      case 11: // story
-      rt.cls();
-      rt.locate(2, 1); rt.print(["The evil sorcerer Drax desires "], true);
-      rt.locate(3, 1); rt.print(["Princess Marianna and has sworn "], true);
-      rt.locate(4, 1); rt.print(["to wreak an unspeakable doom on the"], true);
-      rt.locate(5, 1); rt.print(["people of the Jewelled City, unless"], true);
-      rt.locate(6, 1); rt.print(["she is delivred to him."], true);
-      rt.locate(7, 1); rt.print(["However, he has agreed that if a"], true);
-      rt.locate(8, 1); rt.print(["champion can be found who is able to "], true);
-      rt.locate(9, 1); rt.print(["defeat his 8 demonic guardians, the"], true);
-      rt.locate(10, 1); rt.print(["princess will be allowed to go free."], true);
-      rt.locate(12, 1); rt.print(["All seems lost as champion after "], true);
-      rt.locate(13, 1); rt.print(["champion is defeated."], true);
-      rt.locate(15, 1); rt.print(["Then, from the forgotten wastelands of"], true);
-      rt.locate(16, 1); rt.print(["the North, comes an unknown barbarian,"], true);
-      rt.locate(17, 1); rt.print(["a mighty warrior, wielding broadsword"], true);
-      rt.locate(18, 1); rt.print(["with deadly skill."], true);
-      rt.locate(20, 1); rt.print(["Can he vanquish the forces of Darkness "], true);
-      rt.locate(21, 1); rt.print(["and free the princess ?"], true);
-      rt.locate(23, 1); rt.print(["Only you can say ..."], false);
-      rt.display();
-      yield rt.sleep();
-      if ((rt.keydown(13) || rt.keydown(27))) { { pc = 2; continue main; } } else { { pc = 11; continue main; } }
+      {
+        const choice = yield* menu.run();
+        if ((choice.action === "exit")) { yield rt.system(); return; }
+        s_demo = (choice.demo ? "yes" : "no");
+        s_stage = choice.stage; v_ai = choice.ai; s_mode = choice.mode; s_wizard = "no";
+        if ((s_mode === "vs")) { v_countdown = 60; }
+        // the game reads these two options as flags, the menu owns them
+        s_country = menu.settings.country;
+        s_repeatMusic = (menu.settings.music ? "yes" : "no");
+        { pc = 12; continue main; }
+      }
       case 12: // variables
       v_yAttackA = 17; v_xAttackA = 15;
       v_yAttackB = 17; v_xAttackB = 27;

@@ -93,7 +93,6 @@ export class Runtime {
 
     this.down = new Set();
     this.tapped = new Set();
-    this.keyBuffer = [];
     this.keySeq = 0;
     this.pads = [];
     this.wait = null;
@@ -427,7 +426,6 @@ export class Runtime {
     const codes = [];
     const code = e.code || '';
     if (/^Key[A-Z]$/.test(code)) codes.push(97 + code.charCodeAt(3) - 65);
-    else if (/^(Digit|Numpad)[0-9]$/.test(code)) codes.push(48 + Number(code.slice(-1)));
     else {
       const map = {
         ArrowUp: 18432, ArrowDown: 20480, ArrowLeft: 19200, ArrowRight: 19712,
@@ -445,21 +443,16 @@ export class Runtime {
       if (!handled(e)) return;
       e.preventDefault();
       if (e.repeat) return;
-      let char = '\0';
-      if (e.key && e.key.length === 1) char = e.key;
-      else if (e.key === 'Enter') char = '\r';
-      else if (e.key === 'Escape') char = '\x1b';
-      this.press(Runtime.keyCodes(e), char);
+      this.press(Runtime.keyCodes(e));
     });
     target.addEventListener('keyup', (e) => this.release(Runtime.keyCodes(e)));
     window.addEventListener('blur', () => this.down.clear());
   }
 
   // Shared by the keyboard handlers and the on-screen touch buttons.
-  press(codes, char = '\0') {
+  press(codes) {
     for (const k of codes) { this.down.add(k); this.tapped.add(k); }
     this.keySeq++;
-    this.keyBuffer.push(char);
   }
 
   release(codes) {
@@ -467,7 +460,8 @@ export class Runtime {
   }
 
   keydown(k) { return this.down.has(k) || this.tapped.has(k) ? -1 : 0; }
-  inkey() { return this.keyBuffer.length ? this.keyBuffer.shift() : ''; }
+  // Only a new press since the last SLEEP / _LIMIT counts, a key that is merely held does not.
+  keypressed(k) { return this.tapped.has(k) ? -1 : 0; }
 
   pollPads() {
     this.pads = [...(navigator.getGamepads ? navigator.getGamepads() : [])].filter(Boolean);
