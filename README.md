@@ -50,7 +50,8 @@ assets/             images (indexed/RGBA PNGs + manifest.json), sounds and font 
   * `screens.js` – credits, controls and story pages (plain text tables);
   * `backdrop.js` – the title artwork behind the menu panel.
 * **`js/gestures.js`** – touch gestures on the game screen, mapped onto player A's keys (see Controls).
-* On-screen buttons are shown on touch devices (player A only).
+* **`js/touchpad.js`** – on-screen buttons shown on touch devices (player A only): an 8-way D-pad, `Esc` and
+  `Attack` (see Controls).
 
 ## English naming
 
@@ -71,6 +72,11 @@ never translated.
 
 Menu: `↑`/`↓` move the highlight, `Enter` selects, `Esc` goes back (and leaves the info screens); `Esc`
 aborts a game. Gamepads 1 and 2 are mapped to players A and B.
+
+On touch devices a gamepad-style set of buttons is shown next to the screen (below it in portrait, on both
+sides in short landscape): a D-pad with the four diagonals (slide the thumb across it to change direction),
+`Esc` in the middle and `Attack` on the right. `Attack` also acts as `Enter`: it selects the highlighted menu
+entry and leaves the info screens.
 
 Touch gestures on the game screen (player A; also available next to the on-screen buttons):
 

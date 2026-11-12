@@ -1,6 +1,7 @@
 import { Runtime } from './runtime.js';
 import { decodePng } from './png.js';
 import { attachGestures } from './gestures.js';
+import { buildTouchControls } from './touchpad.js';
 import { program } from './game.js';
 
 const $ = (id) => document.getElementById(id);
@@ -15,36 +16,6 @@ function toggleFullscreen(want) {
   if (want === on) return;
   if (want) stage.requestFullscreen?.().catch(() => {});
   else document.exitFullscreen?.().catch(() => {});
-}
-
-// On-screen buttons for touch devices: [label, QB64 key codes]
-const TOUCH_ROWS = [
-  [['Esc', [27]], ['Enter', [13]],
-    ['◀', [19200]], ['▲', [18432]], ['▼', [20480]], ['▶', [19712]], ['Attack', [100303, 100304]]],
-];
-
-function buildTouchControls(rt) {
-  const root = $('touch');
-  for (const row of TOUCH_ROWS) {
-    const div = document.createElement('div');
-    for (const [label, codes] of row) {
-      const b = document.createElement('button');
-      b.textContent = label;
-      b.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
-        b.setPointerCapture(e.pointerId);
-        b.classList.add('on');
-        rt.press(codes);
-      });
-      const up = () => { b.classList.remove('on'); rt.release(codes); };
-      b.addEventListener('pointerup', up);
-      b.addEventListener('pointercancel', up);
-      div.append(b);
-    }
-    root.append(div);
-  }
-  root.hidden = false;
-  document.body.classList.add('touch');
 }
 
 async function boot() {
@@ -77,7 +48,7 @@ async function boot() {
     overlay.hidden = true;
     rt.attachInput(window);
     attachGestures(rt, canvas);
-    if (matchMedia('(pointer: coarse)').matches) buildTouchControls(rt);
+    if (matchMedia('(pointer: coarse)').matches) buildTouchControls(rt, $('touch'));
     canvas.focus();
     rt.start(program);
   };

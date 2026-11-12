@@ -109,12 +109,14 @@ body {
 
 body:has(#stage:fullscreen) #help { display: none; }
 
+body { --pad: 2.8rem; }
+
 #touch {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
   width: 100%;
-  padding: 0.4rem;
+  padding: 0.4rem 0.8rem;
   box-sizing: border-box;
   touch-action: none;
   user-select: none;
@@ -122,25 +124,66 @@ body:has(#stage:fullscreen) #help { display: none; }
 
 #touch[hidden] { display: none; }
 
-#touch div {
-  display: flex;
-  gap: 0.3rem;
-  justify-content: center;
-}
-
 #touch button {
-  flex: 1 1 0;
-  max-width: 5.5rem;
-  min-height: 2.6rem;
   font: inherit;
   background: #222;
   color: #eee;
   border: 1px solid #666;
-  border-radius: 6px;
   touch-action: none;
 }
 
 #touch button.on { background: #b52; }
 
+#dpad {
+  display: grid;
+  grid-template-columns: repeat(3, var(--pad));
+  grid-template-rows: repeat(3, var(--pad));
+  gap: 0.2rem;
+  touch-action: none;
+}
+
+#dpad button {
+  padding: 0;
+  font-size: 1.2rem;
+  border-radius: 6px;
+}
+
+/* Esc sits apart from the thumb zones, so a game is not aborted by accident */
+#esc {
+  justify-self: center;
+  align-self: start;
+  min-width: 4rem;
+  min-height: 2rem;
+  border-radius: 1rem;
+}
+
+#attack {
+  width: calc(var(--pad) * 2 + 0.2rem);
+  height: calc(var(--pad) * 2 + 0.2rem);
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
 body.touch #help { display: none; }
-body.touch #stage { width: min(100vw, calc((100dvh - 6rem) * 1.6)); }
+body.touch #stage { width: min(100vw, calc((100dvh - 10.5rem) * 1.6)); }
+
+/* Short landscape screens: steering on the left of the game, Attack on the right */
+@media (orientation: landscape) and (max-height: 32rem) {
+  body.touch { flex-direction: row; }
+  body { --pad: 2.4rem; }
+  body.touch #touch { display: contents; }
+  body.touch #dpad { order: 0; margin: 0 0.5rem; }
+  body.touch #stage {
+    order: 1;
+    width: min(calc(100vw - 2 * (3 * var(--pad) + 1.4rem)), 160dvh);
+  }
+  body.touch #attack { order: 2; margin: 0 calc((var(--pad) + 1.2rem) / 2); }
+  body.touch #esc {
+    order: 3;
+    position: fixed;
+    top: 0.4rem;
+    right: 0.5rem;
+  }
+}
