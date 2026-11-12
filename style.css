@@ -109,77 +109,164 @@ body {
 
 body:has(#stage:fullscreen) #help { display: none; }
 
-body { --pad: 2.8rem; }
+body {
+  --dpad: 7rem;
+  --fire: 4.6rem;
+}
 
 #touch {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
   width: 100%;
-  padding: 0.4rem 0.8rem;
+  padding: 0.3rem 0.8rem;
   box-sizing: border-box;
   touch-action: none;
   user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #touch[hidden] { display: none; }
 
 #touch button {
   font: inherit;
-  background: #222;
-  color: #eee;
-  border: 1px solid #666;
+  color: #ddd;
+  background: var(--face, radial-gradient(circle at 50% 30%, #3c3c3c, #1b1b1b 75%));
+  border: 2px solid var(--rim, #5a5a5a);
+  box-shadow: 0 2px 0 #000, inset 0 1px 0 rgba(255, 255, 255, 0.12);
   touch-action: none;
+  transition: transform 60ms;
 }
 
-#touch button.on { background: #b52; }
+#touch button.on {
+  color: #fff;
+  background: radial-gradient(circle at 50% 30%, #ff9d62, #b8461b 80%);
+  border-color: #ffb47e;
+  box-shadow: 0 0 12px rgba(232, 116, 59, 0.6), inset 0 2px 4px rgba(0, 0, 0, 0.35);
+  transform: scale(0.94);
+}
 
+/* Round pad: eight 45° sectors around a thumb cap that follows the finger */
 #dpad {
-  display: grid;
-  grid-template-columns: repeat(3, var(--pad));
-  grid-template-rows: repeat(3, var(--pad));
-  gap: 0.2rem;
+  position: relative;
+  box-sizing: border-box;
+  width: var(--dpad);
+  height: var(--dpad);
+  border-radius: 50%;
+  border: 2px solid #5a5a5a;
+  background:
+    repeating-conic-gradient(from 22.5deg, rgba(255, 255, 255, 0.1) 0 1deg, transparent 1deg 45deg),
+    radial-gradient(circle, #1c1c1c 0 30%, #2c2c2c 70%, #1a1a1a);
+  box-shadow: 0 2px 0 #000, inset 0 0 8px #000;
   touch-action: none;
 }
 
-#dpad button {
-  padding: 0;
-  font-size: 1.2rem;
-  border-radius: 6px;
+#dpad i {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* conic-gradient starts at 12 o'clock; sector 0 (right) is centred on 90deg */
+#dpad .wedge {
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0;
+  background: conic-gradient(
+    from calc(var(--a) + 67.5deg),
+    rgba(232, 116, 59, 0.6) 0 45deg,
+    transparent 45deg
+  );
+}
+
+#dpad .wedge.on { opacity: 1; }
+
+#dpad .well {
+  left: 50%;
+  top: 50%;
+  width: 42%;
+  height: 42%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #0a0a0a, #161616);
+  box-shadow: inset 0 2px 5px #000, 0 0 0 1px #3a3a3a;
+}
+
+#dpad .arrow {
+  left: 50%;
+  top: 50%;
+  width: calc(var(--dpad) * 0.15);
+  height: calc(var(--dpad) * 0.12);
+  background: #8c8c8c;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  transform: translate(-50%, -50%) rotate(var(--r)) translateY(calc(var(--dpad) * -0.375));
+}
+
+#dpad .arrow.up { --r: 0deg; }
+#dpad .arrow.right { --r: 90deg; }
+#dpad .arrow.down { --r: 180deg; }
+#dpad .arrow.left { --r: 270deg; }
+#dpad .arrow.on { background: #fff; }
+
+#dpad .nub {
+  left: 50%;
+  top: 50%;
+  width: 32%;
+  height: 32%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #8a8a8a, #444 60%, #252525);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 80ms ease-out;
+}
+
+#dpad.on .nub {
+  background: radial-gradient(circle at 40% 35%, #ffb27d, #d2561f 65%, #8a3410);
+  box-shadow: 0 0 10px rgba(232, 116, 59, 0.7), 0 2px 4px rgba(0, 0, 0, 0.7);
+  transition: none;
 }
 
 /* Esc sits apart from the thumb zones, so a game is not aborted by accident */
-#esc {
+#touch #esc {
   justify-self: center;
   align-self: start;
   min-width: 4rem;
-  min-height: 2rem;
-  border-radius: 1rem;
+  min-height: 2.2rem;
+  border-radius: 1.1rem;
+  font-size: 0.85rem;
+  opacity: 0.85;
 }
 
-#attack {
-  width: calc(var(--pad) * 2 + 0.2rem);
-  height: calc(var(--pad) * 2 + 0.2rem);
+#touch #attack {
+  --face: radial-gradient(circle at 50% 30%, #6b2c1a, #2a0e08 80%);
+  --rim: #a4482a;
+  width: var(--fire);
+  height: var(--fire);
   border-radius: 50%;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: bold;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 body.touch #help { display: none; }
-body.touch #stage { width: min(100vw, calc((100dvh - 10.5rem) * 1.6)); }
+body.touch #stage { width: min(100vw, calc((100dvh - var(--dpad) - 1.4rem) * 1.6)); }
 
 /* Short landscape screens: steering on the left of the game, Attack on the right */
 @media (orientation: landscape) and (max-height: 32rem) {
   body.touch { flex-direction: row; }
-  body { --pad: 2.4rem; }
+  body {
+    --dpad: 6.4rem;
+    --fire: 4.4rem;
+    --side: calc(var(--dpad) + 1rem);
+  }
   body.touch #touch { display: contents; }
   body.touch #dpad { order: 0; margin: 0 0.5rem; }
   body.touch #stage {
     order: 1;
-    width: min(calc(100vw - 2 * (3 * var(--pad) + 1.4rem)), 160dvh);
+    width: min(calc(100vw - 2 * var(--side)), 160dvh);
   }
-  body.touch #attack { order: 2; margin: 0 calc((var(--pad) + 1.2rem) / 2); }
+  body.touch #attack { order: 2; margin: 0 calc((var(--side) - var(--fire)) / 2); }
   body.touch #esc {
     order: 3;
     position: fixed;
