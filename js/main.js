@@ -5,7 +5,6 @@ import { buildTouchControls } from './touchpad.js';
 import { program } from './game.js';
 
 const $ = (id) => document.getElementById(id);
-const stage = $('stage');
 const canvas = $('screen');
 const overlay = $('overlay');
 const status = $('status');
@@ -14,7 +13,7 @@ const startButton = $('start');
 function toggleFullscreen(want) {
   const on = Boolean(document.fullscreenElement);
   if (want === on) return;
-  if (want) stage.requestFullscreen?.().catch(() => {});
+  if (want) document.documentElement.requestFullscreen?.().catch(() => {});
   else document.exitFullscreen?.().catch(() => {});
 }
 
