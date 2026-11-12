@@ -1,6 +1,6 @@
 // Touch gestures on the game screen, mapped to player A's keys:
-//   drag            floating 8-way joystick (walk / jump / crouch)
-//   tap             attack (+ Enter, to confirm / leave menu screens)
+//   drag            floating 8-way joystick (walk / jump / crouch; moves the menu cursor)
+//   tap             attack (+ Enter, to select the highlighted menu entry / leave menu screens)
 //   extra finger    attack, held while it stays down (e.g. while the other thumb steers)
 //   two-finger tap  Esc (abort the game / go back)
 
@@ -19,10 +19,10 @@ export function attachGestures(rt, el) {
   let stick = null;
   let pair = null;
 
-  function hold(codes, char) {
+  function hold(codes) {
     const fresh = codes.filter((k) => !held.has(k));
     for (const k of codes) held.set(k, (held.get(k) || 0) + 1);
-    if (fresh.length) rt.press(fresh, char);
+    if (fresh.length) rt.press(fresh);
   }
 
   function drop(codes) {
@@ -35,8 +35,8 @@ export function attachGestures(rt, el) {
     if (gone.length) rt.release(gone);
   }
 
-  function pulse(codes, char) {
-    hold(codes, char);
+  function pulse(codes) {
+    hold(codes);
     setTimeout(() => drop(codes), PULSE_MS);
   }
 
@@ -74,14 +74,14 @@ export function attachGestures(rt, el) {
       drop([...p.dirs]);
       p.dirs.clear();
       if (!cancelled && !p.moved && performance.now() - p.t0 < TAP_MS) {
-        pulse([...ATTACK, ENTER], '\r');
+        pulse([...ATTACK, ENTER]);
       }
     } else if (p.role === 'attack') {
       drop(ATTACK);
     } else if (p.role === 'pair') {
       if (cancelled || performance.now() - pair.t0 >= TAP_MS) pair.cancelled = true;
       if (--pair.open === 0) {
-        if (!pair.cancelled) pulse([ESC], '\x1b');
+        if (!pair.cancelled) pulse([ESC]);
         pair = null;
       }
     }

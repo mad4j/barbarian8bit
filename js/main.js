@@ -17,10 +17,9 @@ function toggleFullscreen(want) {
   else document.exitFullscreen?.().catch(() => {});
 }
 
-// On-screen buttons for touch devices: [label, QB64 key codes, char for INKEY$]
+// On-screen buttons for touch devices: [label, QB64 key codes]
 const TOUCH_ROWS = [
-  [...'01234567'].map((d) => [d, [48 + Number(d)], d]),
-  [['Esc', [27], '\x1b'], ['Enter', [13], '\r'],
+  [['Esc', [27]], ['Enter', [13]],
     ['◀', [19200]], ['▲', [18432]], ['▼', [20480]], ['▶', [19712]], ['Attack', [100303, 100304]]],
 ];
 
@@ -28,14 +27,14 @@ function buildTouchControls(rt) {
   const root = $('touch');
   for (const row of TOUCH_ROWS) {
     const div = document.createElement('div');
-    for (const [label, codes, char] of row) {
+    for (const [label, codes] of row) {
       const b = document.createElement('button');
       b.textContent = label;
       b.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         b.setPointerCapture(e.pointerId);
         b.classList.add('on');
-        rt.press(codes, char);
+        rt.press(codes);
       });
       const up = () => { b.classList.remove('on'); rt.release(codes); };
       b.addEventListener('pointerup', up);

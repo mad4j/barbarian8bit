@@ -18,9 +18,10 @@ Any static web server works; there is nothing to install to *play*.
 ## How it works
 
 ```
-js/game.js     game logic (originally translated from barbarianC64.bas, now hand-maintained)
-js/runtime.js  hand-written QB64 runtime
-assets/        images (indexed/RGBA PNGs + manifest.json), sounds and font (committed)
+js/game.js          game logic (originally translated from barbarianC64.bas, now hand-maintained)
+js/menu/            start menu (see below)
+js/runtime.js       hand-written QB64 runtime
+assets/             images (indexed/RGBA PNGs + manifest.json), sounds and font (committed)
 ```
 
 * **`js/game.js`** – the game program. The original is one large `GOTO` state machine
@@ -34,13 +35,20 @@ assets/        images (indexed/RGBA PNGs + manifest.json), sounds and font (comm
   * `_LOADIMAGE` in 8-bit (`256`) and 32-bit mode, `_PUTIMAGE` with scaling/flipping, palette matching
     and transparency, `_CLEARCOLOR`;
   * 8×8 bitmap text (`LOCATE`/`PRINT`/`COLOR`) and TrueType text (`_LOADFONT`/`_FONT`) for the HUD;
-  * `_KEYDOWN`, `INKEY$`, `STICK`/`STRIG` (Gamepad API), `_SNDPLAYFILE`/`_SNDOPEN`/`_SNDLOOP`/`_SNDSTOP`
+  * `_KEYDOWN`, `STICK`/`STRIG` (Gamepad API), `_SNDPLAYFILE`/`_SNDOPEN`/`_SNDLOOP`/`_SNDSTOP`
     (Web Audio), fullscreen, and the 40 fps `_LIMIT` scheduler.
 * **`js/png.js`** – minimal PNG decoder (8-bit indexed and RGBA): the sprites are stored as
   indexed-colour PNGs and the browser's own decoder would expand them to RGBA, losing the palette
   indices the original's colour tricks rely on. All images are fetched and decoded up front so
   `_LOADIMAGE` can stay synchronous.
 * **`js/font8x8.js`** – public-domain IBM 8×8 font ([dhepper/font8x8](https://github.com/dhepper/font8x8)).
+* **`js/menu/`** – the start menu, kept out of the game state machine. `game.js` only calls
+  `StartMenu.logo()` and `StartMenu.run()`, which returns what to play (or exit) and owns the options:
+  * `select.js` – generic cursor-driven list (↑/↓ highlight, `Enter` picks, optional `Esc` = cancel);
+  * `startMenu.js` – the flow: main menu, stage choice, and the screens it leads to;
+  * `options.js` – version, sound and display choices;
+  * `screens.js` – credits, controls and story pages (plain text tables);
+  * `backdrop.js` – the title artwork behind the menu panel.
 * **`js/gestures.js`** – touch gestures on the game screen, mapped onto player A's keys (see Controls).
 * On-screen buttons are shown on touch devices (player A only).
 
@@ -61,15 +69,15 @@ never translated.
 | Move / jump / crouch | arrow keys | `J` `L` / `I` / `K` |
 | Attack | `Shift` | `Space` |
 
-Menu: `0`–`7`, `Enter`/`Esc` to leave sub-screens, `Esc` aborts a game. Gamepads 1 and 2 are mapped to
-players A and B.
+Menu: `↑`/`↓` move the highlight, `Enter` selects, `Esc` goes back (and leaves the info screens); `Esc`
+aborts a game. Gamepads 1 and 2 are mapped to players A and B.
 
 Touch gestures on the game screen (player A; also available next to the on-screen buttons):
 
 | Gesture | Action |
 |---|---|
-| Drag | floating 8-way joystick: walk / jump / crouch, diagonals included |
-| Tap | attack (`Shift`), also `Enter` to leave sub-screens |
+| Drag | floating 8-way joystick: walk / jump / crouch, diagonals included; moves the menu highlight |
+| Tap | attack (`Shift`), also `Enter` (select a menu entry, leave sub-screens) |
 | Extra finger down while another one is dragging | attack, held while the finger stays down |
 | Two-finger tap | `Esc` (abort the game / go back) |
 
