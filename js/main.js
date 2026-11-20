@@ -1,5 +1,5 @@
 import { Runtime } from './runtime.js';
-import { decodePng } from './png.js';
+import { decodeImage } from './png.js';
 import { attachGestures } from './gestures.js';
 import { buildTouchControls } from './touchpad.js';
 import { program } from './game.js';
@@ -23,9 +23,11 @@ async function boot() {
   await Promise.all(Object.entries(manifest.images).map(async ([key, file]) => {
     const res = await fetch(`assets/${file}`);
     if (!res.ok) throw new Error(`cannot load ${file}`);
-    images[key] = await decodePng(await res.arrayBuffer());
+    images[key] = await decodeImage(await res.arrayBuffer());
   }));
-  const rt = new Runtime({ canvas, manifest, images });
+  // ?scale=N forces the screen resolution (N real pixels per game pixel); by default it follows the asset pack
+  const scale = Number(new URLSearchParams(location.search).get('scale')) || undefined;
+  const rt = new Runtime({ canvas, manifest, images, scale });
   await rt.preloadFonts();
   rt.onFullscreen = toggleFullscreen;
   globalThis.barbarian = rt; // handy for debugging in the console

@@ -39,6 +39,9 @@ html:fullscreen body:not(.touch) #stage {
   -webkit-touch-callout: none;
 }
 
+/* a screen above the original 320x200 holds artwork with more detail: scale it smoothly, not in blocks */
+#screen:not([data-scale="1"]) { image-rendering: auto; }
+
 #overlay {
   position: absolute;
   inset: 0;

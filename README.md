@@ -21,8 +21,9 @@ Any static web server works; there is nothing to install to *play*.
 js/game.js          program entry: builds the game state and runs the steps of the frame loop
 js/game/            the game itself (see below)
 js/menu/            start menu (see below)
-js/runtime.js       hand-written QB64 runtime
-assets/             images (indexed/RGBA PNGs + manifest.json), sounds and font (committed)
+js/runtime.js       hand-written QB64 runtime (input, sound, scheduler)
+js/gfx/             its graphics: true-colour screen, palette, images, text
+assets/             images (PNG + manifest.json), sounds and font (committed)
 ```
 
 * **`js/game.js`** and **`js/game/`** – the game. The original is one large `GOTO` state machine
@@ -50,19 +51,22 @@ assets/             images (indexed/RGBA PNGs + manifest.json), sounds and font 
   * `render/` – drawing: `scene` (background, torches, braziers, wipe between rounds), `hud` (level / countdown,
     scores, life bars), `fighters` (sprites from the tables in `sprites.js`, blood spurting from a cut off head),
     `blood`, `snakes`, `foreground` (trees, wizard's fire).
-* **`js/runtime.js`** – emulates what the program needs from QB64:
-  * 320×200 **indexed-colour** screen (`SCREEN 7`/`13`) with palette (`_COPYPALETTE`, `_PALETTECOLOR`,
-    `PALETTE`); the player-B colour tricks of the original rely on raw palette indices, so this is
-    emulated faithfully;
-  * `_LOADIMAGE` in 8-bit (`256`) and 32-bit mode, `_PUTIMAGE` with scaling/flipping, palette matching
-    and transparency, `_CLEARCOLOR`;
-  * 8×8 bitmap text (`LOCATE`/`PRINT`/`COLOR`) and TrueType text (`_LOADFONT`/`_FONT`) for the HUD;
-  * `_KEYDOWN`, `STICK`/`STRIG` (Gamepad API), `_SNDPLAYFILE`/`_SNDOPEN`/`_SNDLOOP`/`_SNDSTOP`
-    (Web Audio), fullscreen, and the 40 fps `_LIMIT` scheduler.
-* **`js/png.js`** – minimal PNG decoder (8-bit indexed and RGBA): the sprites are stored as
-  indexed-colour PNGs and the browser's own decoder would expand them to RGBA, losing the palette
-  indices the original's colour tricks rely on. All images are fetched and decoded up front so
-  `_LOADIMAGE` can stay synchronous.
+* **`js/runtime.js`** – emulates what the program needs from QB64: the graphics (below, `js/gfx/`) plus
+  `_KEYDOWN`, `STICK`/`STRIG` (Gamepad API), `_SNDPLAYFILE`/`_SNDOPEN`/`_SNDLOOP`/`_SNDSTOP`
+  (Web Audio), fullscreen, and the 40 fps `_LIMIT` scheduler.
+* **`js/gfx/`** – the graphics of the runtime: a **true-colour** screen at any resolution.
+  * `graphics.js` – the QB64 statements (`SCREEN`, `COLOR`, `LOCATE`/`PRINT`, `LINE`, `PALETTE`,
+    `_COPYPALETTE`, `_PALETTECOLOR`, `_LOADIMAGE`, `_PUTIMAGE`, `_CLEARCOLOR`, `_LOADFONT`/`_FONT`). The game keeps
+    drawing in the 320×200 coordinates of the original ("game pixels"), whatever the resolution behind them;
+  * `surface.js` – the RGBA frame buffer: `scale` real pixels per game pixel in each direction (default: what the
+    asset pack needs, `?scale=N` in the URL forces it, 1 to 8), and the image blit (stretch, mirror, alpha, colour key);
+  * `palette.js` – the palette that gives meaning to colour *numbers* (`COLOR`, `LINE`, `PRINT`, indexed images);
+  * `images.js` – decoded assets → images, with their resolution (below);
+  * `text.js` – the 8×8 bitmap font and TrueType text, drawn at the screen resolution (anti-aliased above 1×).
+* **`js/png.js`** – image decoder. PNGs are decoded here, losslessly, because the browser's own decoder always
+  expands to RGBA and would lose the palette indices the original's colour tricks rely on (indexed 1–8 bit, 8-bit
+  grey / RGB / RGBA); anything else (16-bit, interlaced, JPEG, WebP) is decoded by the browser into RGBA.
+  All images are fetched and decoded up front so `_LOADIMAGE` can stay synchronous.
 * **`js/font8x8.js`** – public-domain IBM 8×8 font ([dhepper/font8x8](https://github.com/dhepper/font8x8)).
 * **`js/menu/`** – the start menu, kept out of the game steps. `game.js` only calls
   `StartMenu.logo()` and (through the `menu` step in `game/session.js`) `StartMenu.run()`, which returns what to
@@ -75,6 +79,25 @@ assets/             images (indexed/RGBA PNGs + manifest.json), sounds and font 
 * **`js/gestures.js`** – touch gestures on the game screen, mapped onto player A's keys (see Controls).
 * **`js/touchpad.js`** – on-screen buttons shown on touch devices (player A only): a round 8-way D-pad, `Esc` and
   `Attack`, with haptic feedback where the browser supports it (see Controls).
+
+## Artwork: resolution and colour
+
+The game logic and every coordinate stay in the 320×200 grid of the original; what changes is how much detail
+is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) describes the asset pack:
+
+* `"scale"` – pixels per game pixel of the images (1 for the C64 artwork). A pack drawn at 4× has 1280×800 backdrops
+  and 160×320 fighters, and the image still covers the same area of the game. `"imageScales"` (optional, by image key)
+  overrides it for single images, so old and new artwork can be mixed. The screen resolution follows the largest scale
+  of the pack (`?scale=N` forces another; lower-resolution images are enlarged by pixel replication).
+* **Palette art vs true colour** – what the PNG stores decides how it is drawn:
+  * *paletted* PNGs (the C64 artwork) are drawn in the colours of the screen palette: loaded in 8-bit mode they keep
+    their indices (so palette tricks such as the opponent's colour per level keep working), in 32-bit mode each
+    colour is matched to the closest palette colour, as QB64 does;
+  * *RGB / RGBA* PNGs (also JPEG / WebP) are drawn exactly as they are, with alpha blending and colour keys.
+* `"palette"` – the named colours (`[[r, g, b], …]`, 16 for the C64 set) the game uses for things it draws itself
+  (clearing the countdown, braziers, text colours). A paletted stage picture provides them through its own palette;
+  a true-colour picture has none, so the pack's `"palette"` is used. Keep the opponent sprites paletted (at any
+  scale) if the opponent's colour should change with the level.
 
 ## English naming
 
