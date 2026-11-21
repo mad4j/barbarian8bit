@@ -98,6 +98,12 @@ is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) descri
   (clearing the countdown, braziers, text colours). A paletted stage picture provides them through its own palette;
   a true-colour picture has none, so the pack's `"palette"` is used. Keep the opponent sprites paletted (at any
   scale) if the opponent's colour should change with the level.
+* **Sprites at 2×** – the fighters, wizard, gnome, blood and fire sprites (`sprites/`, `spritesA/`, `spritesB/`) are
+  shipped in `assets/HD/` at twice the C64 resolution (`"imageScales": 2`, so the screen is 640×400); the backdrops
+  and menus are still the 1× C64 files. `assets/HD/` is generated from `assets/C64/` by `python tools/double_sprites.py`
+  (needs Pillow): every pixel is repeated, so the blocky look, the palette indices and the transparency are kept, and
+  the script points the manifest at the new files. To draw better sprites, edit the files in `assets/HD/` (keep
+  them paletted and twice the size of the C64 original) and stop running the script, which overwrites them.
 
 ## English naming
 
