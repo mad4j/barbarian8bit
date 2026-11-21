@@ -18,7 +18,7 @@ export const MAX_SCALE = 8;
 
 const norm = (p) => String(p).replace(/\\/g, '/').replace(/^\.\//, '');
 
-const clampScale = (n) => Math.max(1, Math.min(MAX_SCALE, Math.round(Number(n)) || 1));
+export const clampScale = (n) => Math.max(1, Math.min(MAX_SCALE, Math.round(Number(n)) || 1));
 
 // The screen resolution that shows every image of the pack without resampling it down.
 export function packScale(manifest) {

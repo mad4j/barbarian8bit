@@ -58,10 +58,12 @@ assets/             images (PNG + manifest.json), sounds and font (committed)
   * `graphics.js` – the QB64 statements (`SCREEN`, `COLOR`, `LOCATE`/`PRINT`, `LINE`, `PALETTE`,
     `_COPYPALETTE`, `_PALETTECOLOR`, `_LOADIMAGE`, `_PUTIMAGE`, `_CLEARCOLOR`, `_LOADFONT`/`_FONT`). The game keeps
     drawing in the 320×200 coordinates of the original ("game pixels"), whatever the resolution behind them;
-  * `surface.js` – the RGBA frame buffer: `scale` real pixels per game pixel in each direction (default: what the
-    asset pack needs, `?scale=N` in the URL forces it, 1 to 8), and the image blit (stretch, mirror, alpha, colour key);
+  * `surface.js` – the RGBA frame buffer: `scale` real pixels per game pixel in each direction (default: chosen from
+    the display, `?scale=N` in the URL forces it, 1 to 8), and the image blit (stretch, mirror, alpha, colour key);
   * `palette.js` – the palette that gives meaning to colour *numbers* (`COLOR`, `LINE`, `PRINT`, indexed images);
   * `images.js` – decoded assets → images, with their resolution (below);
+  * `resolution.js` – picks the screen resolution when the game starts and the file of every image that suits it
+    (the pack can ship an image in several resolutions, see "Several resolutions" below);
   * `text.js` – the 8×8 bitmap font and TrueType text, drawn at the screen resolution (anti-aliased above 1×).
 * **`js/png.js`** – image decoder. PNGs are decoded here, losslessly, because the browser's own decoder always
   expands to RGBA and would lose the palette indices the original's colour tricks rely on (indexed 1–8 bit, 8-bit
@@ -87,8 +89,14 @@ is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) descri
 
 * `"scale"` – pixels per game pixel of the images (1 for the C64 artwork). A pack drawn at 4× has 1280×800 backdrops
   and 160×320 fighters, and the image still covers the same area of the game. `"imageScales"` (optional, by image key)
-  overrides it for single images, so old and new artwork can be mixed. The screen resolution follows the largest scale
-  of the pack (`?scale=N` forces another; lower-resolution images are enlarged by pixel replication).
+  overrides it for single images, so old and new artwork can be mixed. Lower-resolution images are enlarged by pixel
+  replication (which keeps pixel art sharp at whole multiples).
+* **Several resolutions** – `"variants"` (by image key, `{ "scale": "file" }`) adds files of the same image drawn at
+  other scales. When the game starts it picks the screen resolution from the display (`js/gfx/resolution.js`: the
+  smallest resolution of the pack that is hardly coarser than the widest the game can be shown, fullscreen included,
+  in real pixels; `?scale=N` forces another) and loads each image in the best variant that the screen can show whole.
+  So a painted picture is reduced once, offline, with a proper filter, and never shrunk or stretched in the browser;
+  a small screen downloads only the small files.
 * **Palette art vs true colour** – what the PNG stores decides how it is drawn:
   * *paletted* PNGs (the C64 artwork) are drawn in the colours of the screen palette: loaded in 8-bit mode they keep
     their indices (so palette tricks such as the opponent's colour per level keep working), in 32-bit mode each
@@ -99,18 +107,20 @@ is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) descri
   a true-colour picture has none, so the pack's `"palette"` is used. Keep the opponent sprites paletted (at any
   scale) if the opponent's colour should change with the level.
 * **Artwork at 2×** – all the images (sprites, stages, menus) are shipped in `assets/HD/` at twice the C64 resolution
-  (`"scale": 2`, so the screen is 640×400). `assets/HD/` is generated from `assets/C64/` by
+  (`"scale": 2`, so the screen is at least 640×400). `assets/HD/` is generated from `assets/C64/` by
   `python tools/double_artwork.py` (needs Pillow): every pixel is repeated, so the blocky look, the palette indices
   and the transparency are kept, and the script points the manifest at the new files. To draw better artwork, edit
   the files in `assets/HD/` (keep them paletted where the original is, and twice the size of the C64 original) and
   stop running the script, which overwrites them.
-* **Painted throne room** – `assets/HD/stage/throne.png` is true colour (not paletted): the room is a
-  heroic-fantasy oil painting (`tools/throne_painting.jpg`, made with an image model from a layout reference), mapped
-  onto the game grid by `python tools/draw_throne.py` (needs Pillow and NumPy). It keeps the C64 logo/HUD area, the
-  pillars with their snakes and the label slab (the game draws the opaque 32×8 `1PLR` / `DEMO` picture at 142,192;
-  here it sits on a bronze plate). `throneBackground.png` is a crop of it (game pixels 32,96 to 288,176, which the
-  game draws again on every frame), so always regenerate both together, and don't run `double_artwork.py`
-  afterwards: it would overwrite them with the pixel-doubled C64 picture.
+* **Painted throne room** – `throne.png` and `throneBackground.png` are true colour (not paletted) and come in three
+  resolutions, `assets/HD/stage/` (2×), `assets/HD4/stage/` (4×) and `assets/HD6/stage/` (6×), listed in `"variants"`.
+  The room is a heroic-fantasy oil painting (`tools/throne_painting.jpg`, made with an image model from a layout
+  reference), mapped onto the game grid by `python tools/draw_throne.py` (needs Pillow and NumPy), which writes all of
+  them. It keeps the C64 logo/HUD area, the pillars with their snakes and the label slab (the game draws the opaque
+  32×8 `1PLR` / `DEMO` picture at 142,192; here it sits on a bronze plate). `throneBackground.png` is a crop of the
+  picture of the same resolution (game pixels 32,96 to 288,176, which the game draws again on every frame), so
+  always regenerate them together. The other images stay at 2× and are enlarged by replication on bigger screens.
+  Don't run `double_artwork.py` afterwards: it would overwrite the 2× throne with the pixel-doubled C64 picture.
 
 ## English naming
 

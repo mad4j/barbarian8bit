@@ -1,5 +1,6 @@
 import { Runtime } from './runtime.js';
 import { decodeImage } from './png.js';
+import { chooseScale, pickImages } from './gfx/resolution.js';
 import { attachGestures } from './gestures.js';
 import { buildTouchControls } from './touchpad.js';
 import { program } from './game.js';
@@ -17,17 +18,28 @@ function toggleFullscreen(want) {
   else document.exitFullscreen?.().catch(() => {});
 }
 
+// The widest the game can be shown on this device, in real pixels: fullscreen, in either orientation. The
+// resolution is chosen once, so it has to cover that, or going fullscreen (or turning the phone) would blur it.
+function displayWidth() {
+  const long = Math.max(screen.width, screen.height);
+  const short = Math.min(screen.width, screen.height);
+  return Math.min(long, short * 1.6) * (window.devicePixelRatio || 1);
+}
+
 async function boot() {
   const manifest = await fetch('assets/manifest.json').then((r) => r.json());
+  // ?scale=N forces the screen resolution (N real pixels per game pixel); by default it follows the display
+  const forced = Number(new URLSearchParams(location.search).get('scale')) || undefined;
+  const scale = chooseScale(manifest, forced, displayWidth());
+  // every image in the resolution that fits the screen
+  const { files, scales } = pickImages(manifest, scale);
   const images = {};
-  await Promise.all(Object.entries(manifest.images).map(async ([key, file]) => {
+  await Promise.all(Object.entries(files).map(async ([key, file]) => {
     const res = await fetch(`assets/${file}`);
     if (!res.ok) throw new Error(`cannot load ${file}`);
     images[key] = await decodeImage(await res.arrayBuffer());
   }));
-  // ?scale=N forces the screen resolution (N real pixels per game pixel); by default it follows the asset pack
-  const scale = Number(new URLSearchParams(location.search).get('scale')) || undefined;
-  const rt = new Runtime({ canvas, manifest, images, scale });
+  const rt = new Runtime({ canvas, manifest: { ...manifest, imageScales: scales }, images, scale });
   await rt.preloadFonts();
   rt.onFullscreen = toggleFullscreen;
   globalThis.barbarian = rt; // handy for debugging in the console
