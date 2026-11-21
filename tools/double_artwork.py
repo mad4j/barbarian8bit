@@ -1,9 +1,9 @@
-"""Doubles the resolution of every sprite: the C64 artwork in assets/C64/sprites*/ becomes
-assets/HD/sprites*/ at 2x (each pixel repeated, so the blocky look and the palette indices are kept)
-and assets/manifest.json points the sprites at the new files with "imageScales": 2.
+"""Doubles the resolution of all the artwork: every image of assets/C64/ (fighters and other sprites,
+stages, menus) becomes assets/HD/ at 2x (each pixel repeated, so the blocky look, the palette indices
+and the transparency are kept) and assets/manifest.json points at the new files with "scale": 2.
 
-The sprites still cover the same area of the 320x200 game; only the pixels behind each game pixel
-double. Run from the repository root:  python tools/double_sprites.py   (needs Pillow)
+The images still cover the same area of the 320x200 game; only the pixels behind each game pixel
+double. Run from the repository root:  python tools/double_artwork.py   (needs Pillow)
 """
 import json
 import re
@@ -13,7 +13,7 @@ from PIL import Image
 
 FACTOR = 2
 ASSETS = Path('assets')
-SPRITE_FILE = re.compile(r'^(?:C64|HD)/(sprites[AB]?)/(.+\.png)$')
+IMAGE_FILE = re.compile(r'^(?:C64|HD)/(.+\.png)$')
 
 
 def double(src, dst):
@@ -37,18 +37,16 @@ def dump(manifest):
 def main():
     path = ASSETS / 'manifest.json'
     manifest = json.loads(path.read_text(encoding='utf-8'))
-    scales = manifest.pop('imageScales', {})
     for key, file in manifest['images'].items():
-        match = SPRITE_FILE.match(file)
+        match = IMAGE_FILE.match(file)
         if not match:
             continue
-        folder, name = match.groups()
-        double(ASSETS / 'C64' / folder / name, ASSETS / 'HD' / folder / name)
-        manifest['images'][key] = f'HD/{folder}/{name}'
-        scales[key] = FACTOR
-    # "imageScales" goes right after "scale"
-    ordered = {'scale': manifest.pop('scale'), 'imageScales': scales, **manifest}
-    path.write_text(dump(ordered), encoding='utf-8')
+        name = match.group(1)
+        double(ASSETS / 'C64' / name, ASSETS / 'HD' / name)
+        manifest['images'][key] = f'HD/{name}'
+    manifest['scale'] = FACTOR
+    manifest.pop('imageScales', None)
+    path.write_text(dump(manifest), encoding='utf-8')
 
 
 if __name__ == '__main__':
