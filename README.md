@@ -116,11 +116,14 @@ is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) descri
   resolutions, `assets/HD/stage/` (2×), `assets/HD4/stage/` (4×) and `assets/HD6/stage/` (6×), listed in `"variants"`.
   The room is a heroic-fantasy oil painting (`tools/throne_painting.jpg`, made with an image model from a layout
   reference), mapped onto the game grid by `python tools/draw_throne.py` (needs Pillow and NumPy), which writes all of
-  them. It keeps the C64 logo/HUD area, the pillars with their snakes and the label slab (the game draws the opaque
-  32×8 `1PLR` / `DEMO` picture at 142,192; here it sits on a bronze plate). `throneBackground.png` is a crop of the
-  picture of the same resolution (game pixels 32,96 to 288,176, which the game draws again on every frame), so
-  always regenerate them together. The other images stay at 2× and are enlarged by replication on bigger screens.
-  Don't run `double_artwork.py` afterwards: it would overwrite the 2× throne with the pixel-doubled C64 picture.
+  them. It keeps the C64 logo/HUD area, the pillars with their snakes and the snake tails in the corners.
+  `throneBackground.png` is a crop of the picture of the same resolution (game pixels 32,96 to 288,176, which the
+  game draws again on every frame), so always regenerate them together. The other images stay at 2× and are
+  enlarged by replication on bigger screens. Don't run `double_artwork.py` afterwards: it would overwrite the 2×
+  throne with the pixel-doubled C64 picture.
+* **No player labels** – the stage pictures carry no `1PLR` / `2PLR` / `DEMO` text: the game no longer draws those
+  labels, and the `2PLR` that the C64 pictures had at game pixels 142,192 (32×8) has been painted out of the stage
+  pictures in `assets/C64/` and `assets/HD/`.
 
 ## English naming
 

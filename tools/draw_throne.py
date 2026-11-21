@@ -8,9 +8,8 @@ The room is a heroic-fantasy oil painting (tools/throne_painting.jpg: made with 
 reference of the room, in the manner of 1970s sword-and-sorcery cover art, then retouched). This script maps it
 onto the game grid, so the room is 252x145 game pixels (1.738:1) and the painting is scaled to its width without
 stretching: the stairs end where the floor starts (game y 168), and the rows that do not fit are taken from the
-stairs, which get flatter from the first step down. A bronze plate holds the "1PLR" / "2PLR" label. Kept from the
-C64 picture: the logo and HUD area, the two pillars with their snakes (shared by all stages) and the snake tails
-in the bottom corners.
+stairs, which get flatter from the first step down. Kept from the C64 picture: the logo and HUD area, the two
+pillars with their snakes (shared by all stages) and the snake tails in the bottom corners.
 
 With another painting, set PAINTING_TOP, FLATTEN_FROM and STAIRS_BASE (rows of the painting) to match it. The
 best fit is a painting at 1.738:1 with the stairs ending at 74.5% of its height, as wide as the largest
@@ -99,17 +98,6 @@ def paint_room(s):
     return np.asarray(room, np.float32)
 
 
-def nameplate(out, s):
-    """A bronze plate under the label (an opaque 32x8 picture drawn at 142,192) and the label itself."""
-    x0, y0, x1, y1 = 139 * s, 189 * s, 177 * s, 200 * s
-    plate = np.zeros((y1 - y0, x1 - x0, 3), np.float32)
-    plate[:] = (132, 92, 44)
-    plate[:s] = (226, 176, 98)
-    plate[:, :s] = (190, 140, 70)
-    plate[:, -s:] = (64, 42, 18)
-    out[y0:y1, x0:x1] = plate
-
-
 def snake_tails(out, original, s):
     """The tails of the pillar snakes curl into the floor in the corners: the C64 pixels, kept."""
     index = np.asarray(Image.open(SOURCE))
@@ -132,11 +120,7 @@ def compose(s):
     out = original.copy()
     x0, y0, x1, y1 = (v * s for v in ROOM)
     out[y0:y1, x0:x1] = paint_room(s)
-    nameplate(out, s)
     snake_tails(out, original, s)
-    # the "2PLR" label is part of the C64 picture: the game draws "1PLR" / "DEMO" over it
-    label = (142 * s, 192 * s, 174 * s, 200 * s)
-    out[label[1]:label[3], label[0]:label[2]] = original[label[1]:label[3], label[0]:label[2]]
     return np.clip(np.rint(out), 0, 255).astype(np.uint8)
 
 

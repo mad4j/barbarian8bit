@@ -112,8 +112,6 @@ export function stage(g) {
   rt.screen(7);
   rt.cls(undefined, 0);
   loadStage(g);
-  if (g.mode === 'solo' && g.demo === 'no') putPicture(rt, '1PLR.gif', 142, 192);
-  if (g.demo === 'yes') putPicture(rt, 'demo.gif', 142, 192);
   if (g.country === 'USA') putPicture(rt, 'logoDS.gif', 48, 0);
   drawStartHud(g);
   setOpponentColours(g);
