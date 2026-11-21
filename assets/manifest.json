@@ -1,8 +1,7 @@
 {
  "scale": 2,
  "variants": {
-  "C64/stage/throne.gif": {"4": "HD4/stage/throne.png", "6": "HD6/stage/throne.png"},
-  "C64/stage/throneBackground.gif": {"4": "HD4/stage/throneBackground.png", "6": "HD6/stage/throneBackground.png"}
+  "C64/stage/throne.gif": {"4": "HD4/stage/throne.png", "6": "HD6/stage/throne.png"}
  },
  "palette": [[0, 0, 0], [255, 255, 255], [137, 64, 54], [122, 191, 199], [138, 70, 174], [104, 169, 65], [62, 49, 162], [208, 220, 113], [144, 95, 37], [92, 71, 0], [187, 119, 109], [85, 85, 85], [128, 128, 128], [172, 234, 136], [124, 112, 218], [171, 171, 171]],
  "images": {
@@ -168,7 +167,6 @@
   "C64/stage/snakeB3.gif": "HD/stage/snakeB3.png",
   "C64/stage/thanks.png": "HD/stage/thanks.png",
   "C64/stage/throne.gif": "HD/stage/throne.png",
-  "C64/stage/throneBackground.gif": "HD/stage/throneBackground.png",
   "C64/stage/torture.gif": "HD/stage/torture.png",
   "C64/stage/tortureBackground.gif": "HD/stage/tortureBackground.png",
   "C64/stage/torch1.gif": "HD/stage/torch1.png",

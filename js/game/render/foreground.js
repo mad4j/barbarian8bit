@@ -1,4 +1,5 @@
 // What is drawn last, in front of the fighters: the trees at the edges, and the wizard's fire.
+import { putView, isOriginal } from './view.js';
 
 // The fire ball of the wizard changes its picture every few cells on its way to player A.
 function fireFrame(x, wizard) {
@@ -15,19 +16,20 @@ function drawFire(g) {
   if (!frame) return;
   const image = rt.loadimage(`C64/sprites/fire${frame}.gif`);
   rt.clearcolor(rt.rgb(255, 0, 0), image);
-  rt.putimage(image, (b.attackX - 1) * 8, (b.attackY - 1) * 8);
+  putView(g, image, (b.attackX - 1) * 8, (b.attackY - 1) * 8);
+}
+
+function drawTree(g, tree) {
+  g.rt.putimage(tree.image, tree.x, tree.y);
 }
 
 export function foreground(g) {
-  const { rt, a, b } = g;
-  if (a.x < 5 || b.x < 5 || (g.gnome === 'yes' && g.gnomeX < 88)) {
-    rt.clearcolor(rt.rgb(247, 0, 0), g.treeLeftImage);
-    rt.putimage(g.treeLeftImage, 0, 96);
-  }
-  if (b.x > 31 || a.x > 31 || g.gnomeX > 256 || g.severedX > 263) {
-    rt.clearcolor(rt.rgb(247, 0, 0), g.treeRightImage);
-    rt.putimage(g.treeRightImage, 288, 96);
-  }
+  const { a, b } = g;
+  // bigger fighters (see view.js) stick out over the sides further than the walking in and out of the original,
+  // so there the trees always stay in front
+  const always = !isOriginal(g.view);
+  if (always || a.x < 5 || b.x < 5 || (g.gnome === 'yes' && g.gnomeX < 88)) drawTree(g, g.treeLeft);
+  if (always || b.x > 31 || a.x > 31 || g.gnomeX > 256 || g.severedX > 263) drawTree(g, g.treeRight);
   drawFire(g);
   return 'endFrame';
 }

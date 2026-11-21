@@ -1,5 +1,6 @@
 // The two fighters: sprite, position on the screen and the blood spurting from a cut off head.
 import { selectSprite, SPRITES_A, SPRITES_B } from './sprites.js';
+import { putView, putViewRect, SLOT_CENTER } from './view.js';
 import { isBeheaded, isDead } from '../fighter.js';
 
 // How the picture of a fighter is put on the screen, by the `imageDirection` of its sprite:
@@ -19,10 +20,13 @@ function locateSprite(f) {
   f.pixelY = f.cellY * 8;
 }
 
-function putFighter(rt, f, placement) {
+// Every picture of a fighter is drawn around the middle of his slot, whatever its width, so a bigger view
+// (see view.js) does not make the fighter shift from one pose to the next.
+function putFighter(g, f, placement) {
   const how = placement[f.imageDirection];
-  if (how === AS_IS) rt.putimage(f.image, f.pixelX, f.pixelY);
-  else if (how) rt.putimage(f.image, f.pixelX + how[0], f.pixelY, f.pixelX + how[1], f.pixelY + 79);
+  const pivot = f.pixelX + SLOT_CENTER;
+  if (how === AS_IS) putView(g, f.image, f.pixelX, f.pixelY, pivot);
+  else if (how) putViewRect(g, f.image, f.pixelX + how[0], f.pixelY, f.pixelX + how[1], f.pixelY + 79, pivot);
 }
 
 // Blood spurting from the neck (phases 1-3) and then from the body (4-6) of a beheaded fighter.
@@ -31,20 +35,20 @@ function drawSpurt(g, f) {
   const phase = f.bloodBeheading;
   if (!isBeheaded(f) || phase < 1 || phase > 6) return;
   const image = rt.loadimage(`C64/sprites/spurt${((phase - 1) % 3) + 1}.gif`);
-  if (phase <= 3) rt.putimage(image, f.x * 8 + 1, (f.foreheadY - 2) * 8);
-  else rt.putimage(image, f.x * 8, (f.bodyY - 3) * 8 - 2);
+  if (phase <= 3) putView(g, image, f.x * 8 + 1, (f.foreheadY - 2) * 8);
+  else putView(g, image, f.x * 8, (f.bodyY - 3) * 8 - 2);
 }
 
 export function fighters(g) {
   const { rt, a, b } = g;
   selectSprite(rt, a, SPRITES_A);
   locateSprite(a);
-  if (a.pixelX > 0) putFighter(rt, a, PLACEMENT_A);
+  if (a.pixelX > 0) putFighter(g, a, PLACEMENT_A);
   selectSprite(rt, b, SPRITES_B);
   locateSprite(b);
-  if (b.pixelX < 290) putFighter(rt, b, PLACEMENT_B);
+  if (b.pixelX < 290) putFighter(g, b, PLACEMENT_B);
   // when A is dying or kneeing he is drawn again, over B
-  if ((isDead(a) || a.state === 'knee' || a.state === 'kneeRev') && a.pixelX > 0) putFighter(rt, a, PLACEMENT_A_AGAIN);
+  if ((isDead(a) || a.state === 'knee' || a.state === 'kneeRev') && a.pixelX > 0) putFighter(g, a, PLACEMENT_A_AGAIN);
   drawSpurt(g, a);
   drawSpurt(g, b);
   return 'bloodA';

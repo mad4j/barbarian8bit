@@ -77,6 +77,12 @@ export class ImageStore {
 
   get(handle) { return this.images[handle]; }
 
+  // An image made while the game runs (not from a file), e.g. a copy of the screen: pixels packed 0xAABBGGRR.
+  add(rgba, w, h, scale) {
+    this.images.push({ kind: 'rgba', w, h, scale, rgba, key: -1 });
+    return this.images.length - 1;
+  }
+
   load(path, mode) {
     const key = norm(path);
     const asset = this.assets[key];

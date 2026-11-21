@@ -2,6 +2,7 @@
 // and how they are drawn. (The gnome himself is in gnome.js.)
 import { sfx } from './sound.js';
 import { isBeheaded, isKilled } from './fighter.js';
+import { putView } from './render/view.js';
 
 // The flight of a head, from the moment of the beheading (positions in cells from the fighter, heights in pixels).
 // A stage applies once the head is older than `after` frames: [after, columns, height, picture, bounce sound].
@@ -108,8 +109,8 @@ function drawHead(g) {
   const { rt } = g;
   const { severedFrame: frame, severedX: x } = g;
   if (x >= 320) return;
-  rt.putimage(rt.loadimage('C64/spritesA/headShadow.gif'), x, 168);
-  rt.putimage(rt.loadimage(`C64/spritesA/severedHead${frame}.gif`), x, g.severedY);
+  putView(g, rt.loadimage('C64/spritesA/headShadow.gif'), x, 168);
+  putView(g, rt.loadimage(`C64/spritesA/severedHead${frame}.gif`), x, g.severedY);
 }
 
 export function drawSevered(g) {

@@ -1,5 +1,5 @@
 """Builds the throne room artwork in several resolutions, in true colour. For each resolution `s` (pixels per game
-pixel) it writes throne.png and throneBackground.png: s=2 in assets/HD/stage/, s=4 in assets/HD4/stage/ and s=6 in
+pixel) it writes throne.png: s=2 in assets/HD/stage/, s=4 in assets/HD4/stage/ and s=6 in
 assets/HD6/stage/. The game picks the resolution that suits the display (see js/gfx/resolution.js and "variants" in
 assets/manifest.json), so every resolution is reduced here, once, from the painting with the best filter, never
 stretched or shrunk at run time.
@@ -15,8 +15,9 @@ With another painting, set PAINTING_TOP, FLATTEN_FROM and STAIRS_BASE (rows of t
 best fit is a painting at 1.738:1 with the stairs ending at 74.5% of its height, as wide as the largest
 resolution (252 x 6 = 1512 pixels).
 
-throneBackground.png is the strip of the picture that the game draws again on every frame (game pixels
-32,96 to 288,176), so it is cut from the picture of the same resolution. Run from the repository root:
+The strip of the picture that the game draws again on every frame under the fighters, and the pillars in front of
+them, are not files: the game copies them from throne.png when the stage starts (see STAGES in js/game/stage.js).
+Run from the repository root:
 python tools/draw_throne.py   (needs Pillow and NumPy; the output is deterministic)
 """
 from pathlib import Path
@@ -130,8 +131,6 @@ def main():
         stage = ROOT / 'assets' / folder / 'stage'
         stage.mkdir(parents=True, exist_ok=True)
         Image.fromarray(picture).save(stage / 'throne.png', optimize=True)
-        # the strip the game draws on every frame: game pixels 32,96 to 288,176
-        Image.fromarray(picture[96 * s:176 * s, 32 * s:288 * s]).save(stage / 'throneBackground.png', optimize=True)
 
 
 if __name__ == '__main__':

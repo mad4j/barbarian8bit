@@ -1,6 +1,7 @@
 // New round and stage set-up.
 import { resetHurtY, setHurtX } from './fighter.js';
 import { drawStartHud } from './render/hud.js';
+import { ORIGINAL_VIEW, viewTop } from './render/view.js';
 
 // What a fighter looks like at the start of a round (position and attack column are set by the caller).
 function resetFighter(f) {
@@ -68,10 +69,13 @@ export function newRound(g) {
 }
 
 // Picture, background and the trees in front for each stage (file names in assets/C64/stage).
+// A stage with a `view` draws its fighters bigger and lower (see render/view.js). They then cover more than the
+// strip of the original arena, so such a stage has no background and tree files: they are copied from the picture.
 const STAGES = {
   plain: { picture: 'plain', background: 'plainBackground', trees: 'forest' },
   forest: { picture: 'forest', background: 'forestBackground', trees: 'forest' },
-  throne: { picture: 'throne', background: 'throneBackground', trees: 'arena' },
+  // the fighters of the painted throne room are as big as the sorcerer and the princess on the throne
+  throne: { picture: 'throne', view: { scale: 1.5, floorY: 190 } },
   arena: { picture: 'arena', background: 'arenaBackground', trees: 'arena' },
   torture: { picture: 'torture', background: 'tortureBackground', trees: 'arena' },
 };
@@ -81,16 +85,47 @@ const OPPONENT_COLOURS = [
   [138, 70, 174], [104, 169, 65], [144, 95, 37], [62, 49, 162], [122, 191, 199], [137, 64, 54], [92, 71, 0],
 ];
 
+// The arena is the picture between the pillars at the sides (x 32 to 288), from row 96 down to the floor.
+// It is drawn again on every frame under the fighters; the trees at the sides are drawn over them.
+const ARENA_LEFT = 32;
+const ARENA_RIGHT = 288;
+const ARENA_TOP = 96;
+
+function loadArenaFiles(g, stage) {
+  const { rt } = g;
+  const load = (file, x) => ({ image: rt.loadimage(`C64/stage/${file}.gif`, 256), x, y: ARENA_TOP });
+  g.backdrop = load(stage.background, ARENA_LEFT);
+  g.treeLeft = load(`${stage.trees}TreeLeft`, 0);
+  g.treeRight = load(`${stage.trees}TreeRight`, ARENA_RIGHT);
+  for (const tree of [g.treeLeft, g.treeRight]) rt.clearcolor(rt.rgb(247, 0, 0), tree.image);
+}
+
+// The same, cut out of the picture that is on the screen, as far up and down as the view reaches.
+function copyArena(g, view) {
+  const { rt } = g;
+  if (!g.arenaCopies[g.stage]) {
+    const top = viewTop(view);
+    const last = view.floorY - 1;
+    const copy = (x1, x2) => ({ image: rt.getimage(x1, top, x2, last), x: x1, y: top });
+    g.arenaCopies[g.stage] = {
+      backdrop: copy(ARENA_LEFT, ARENA_RIGHT - 1),
+      treeLeft: copy(0, ARENA_LEFT - 1),
+      treeRight: copy(ARENA_RIGHT, 319),
+    };
+  }
+  Object.assign(g, g.arenaCopies[g.stage]);
+}
+
 function loadStage(g) {
   const { rt } = g;
   const stage = STAGES[g.stage];
   if (!stage) return;
+  g.view = stage.view ?? ORIGINAL_VIEW;
   const picture = rt.loadimage(`C64/stage/${stage.picture}.gif`, 256);
   rt.copypalette(picture);
   rt.putimage(picture);
-  g.backgroundImage = rt.loadimage(`C64/stage/${stage.background}.gif`, 256);
-  g.treeLeftImage = rt.loadimage(`C64/stage/${stage.trees}TreeLeft.gif`, 256);
-  g.treeRightImage = rt.loadimage(`C64/stage/${stage.trees}TreeRight.gif`, 256);
+  if (stage.view) copyArena(g, stage.view);
+  else loadArenaFiles(g, stage);
 }
 
 function putPicture(rt, file, x, y) {

@@ -1,6 +1,7 @@
 // The gnome: he walks in after a fighter has been killed, laughs, and drags the loser away.
 import { sfx } from './sound.js';
 import { isDead } from './fighter.js';
+import { putView } from './render/view.js';
 
 // Walking: a new picture every 6 frames and a step of 7 pixels at the 7th and the 19th frame of each 25.
 function walk(g) {
@@ -71,7 +72,7 @@ export function gnomeEffects(g) {
       if (isDead(a)) winnerLeaves(g, b, a);
     }
     const picture = GNOME_PICTURES[g.gnomeFrame];
-    if (picture && g.gnomeX < 312) rt.putimage(rt.loadimage(`C64/sprites/${picture}.gif`), g.gnomeX, 144);
+    if (picture && g.gnomeX < 312) putView(g, rt.loadimage(`C64/sprites/${picture}.gif`), g.gnomeX, 144);
   }
   const fighters = [[a, REACH.a], [b, REACH.b]];
   for (const [f, reach] of fighters) {

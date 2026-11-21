@@ -50,13 +50,15 @@ assets/             images (PNG + manifest.json), sounds and font (committed)
     loser off.
   * `render/` – drawing: `scene` (background, torches, braziers, wipe between rounds), `hud` (level / countdown,
     scores, life bars), `fighters` (sprites from the tables in `sprites.js`, blood spurting from a cut off head),
-    `blood`, `snakes`, `foreground` (trees, wizard's fire).
+    `blood`, `snakes`, `foreground` (trees, wizard's fire), and `view` (everything that stands on the floor can be
+    drawn bigger and lower than in the original, per stage: see "Painted throne room" below).
 * **`js/runtime.js`** – emulates what the program needs from QB64: the graphics (below, `js/gfx/`) plus
   `_KEYDOWN`, `STICK`/`STRIG` (Gamepad API), `_SNDPLAYFILE`/`_SNDOPEN`/`_SNDLOOP`/`_SNDSTOP`
   (Web Audio), fullscreen, and the 40 fps `_LIMIT` scheduler.
 * **`js/gfx/`** – the graphics of the runtime: a **true-colour** screen at any resolution.
   * `graphics.js` – the QB64 statements (`SCREEN`, `COLOR`, `LOCATE`/`PRINT`, `LINE`, `PALETTE`,
-    `_COPYPALETTE`, `_PALETTECOLOR`, `_LOADIMAGE`, `_PUTIMAGE`, `_CLEARCOLOR`, `_LOADFONT`/`_FONT`). The game keeps
+    `_COPYPALETTE`, `_PALETTECOLOR`, `_LOADIMAGE`, `_WIDTH`/`_HEIGHT` of an image, `_PUTIMAGE`, `GET` (a copy of part
+    of the screen), `_CLEARCOLOR`, `_LOADFONT`/`_FONT`). The game keeps
     drawing in the 320×200 coordinates of the original ("game pixels"), whatever the resolution behind them;
   * `surface.js` – the RGBA frame buffer: `scale` real pixels per game pixel in each direction (default: chosen from
     the display, `?scale=N` in the URL forces it, 1 to 8), and the image blit (stretch, mirror, alpha, colour key);
@@ -112,15 +114,22 @@ is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) descri
   and the transparency are kept, and the script points the manifest at the new files. To draw better artwork, edit
   the files in `assets/HD/` (keep them paletted where the original is, and twice the size of the C64 original) and
   stop running the script, which overwrites them.
-* **Painted throne room** – `throne.png` and `throneBackground.png` are true colour (not paletted) and come in three
+* **Painted throne room** – `throne.png` is true colour (not paletted) and comes in three
   resolutions, `assets/HD/stage/` (2×), `assets/HD4/stage/` (4×) and `assets/HD6/stage/` (6×), listed in `"variants"`.
   The room is a heroic-fantasy oil painting (`tools/throne_painting.jpg`, made with an image model from a layout
   reference), mapped onto the game grid by `python tools/draw_throne.py` (needs Pillow and NumPy), which writes all of
   them. It keeps the C64 logo/HUD area, the pillars with their snakes and the snake tails in the corners.
-  `throneBackground.png` is a crop of the picture of the same resolution (game pixels 32,96 to 288,176, which the
-  game draws again on every frame), so always regenerate them together. The other images stay at 2× and are
-  enlarged by replication on bigger screens. Don't run `double_artwork.py` afterwards: it would overwrite the 2×
-  throne with the pixel-doubled C64 picture.
+  The other images stay at 2× and are enlarged by replication on bigger screens. Don't run `double_artwork.py`
+  afterwards: it would overwrite the 2× throne with the pixel-doubled C64 picture.
+* **Fighters in proportion** – the sorcerer and the princess of the painted throne room are bigger than the C64
+  fighters, so the throne stage has a `view` in `STAGES` (`js/game/stage.js`: `scale` and `floorY`, the row of the
+  feet; now 1.5× and row 190 instead of 176). Everything that stands on the floor – the fighters, blood, severed
+  heads, the gnome, the wizard's fire – is drawn through `js/game/render/view.js`, bigger and lower, around the middle
+  of the fighter's slot; positions, hit zones and the rest of the game keep the original coordinates. The fighters
+  then cover more than the original strip of the arena, so for a stage with a `view` the background that is drawn
+  again on every frame under them and the trees in front are copied from the stage picture when it is first shown
+  (there are no files for them), and the trees are always drawn. Stages without a `view` are drawn as before; to
+  resize another stage, give it a `view` too (its picture must show the floor below row 176).
 * **No player labels** – the stage pictures carry no `1PLR` / `2PLR` / `DEMO` text: the game no longer draws those
   labels, and the `2PLR` that the C64 pictures had at game pixels 142,192 (32×8) has been painted out of the stage
   pictures in `assets/C64/` and `assets/HD/`.

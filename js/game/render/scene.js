@@ -54,7 +54,9 @@ function wipeScreen(g) {
     if (isDead(b)) a.x = 1;
     if (isDead(a)) b.x = 39;
   }
-  for (let row = 8; row <= 22; row++) {
+  // down to the floor, which a view (see view.js) can put below the original one
+  const lastRow = Math.max(22, Math.floor((g.view.floorY - 1) / 8));
+  for (let row = 8; row <= lastRow; row++) {
     if (g.time > a.refTime + 60 + (row - 8) * 5) block(rt, row, 5, 32);
   }
   if (g.time > a.refTime + 200) {
@@ -103,7 +105,7 @@ function tickCountdown(g) {
 
 export function scene(g) {
   const { rt, a, b } = g;
-  rt.putimage(g.backgroundImage, 32, 96);
+  rt.putimage(g.backdrop.image, g.backdrop.x, g.backdrop.y);
   if (g.stage === 'torture') drawTorches(g);
   if (g.stage === 'arena') drawBraziers(g);
   if (g.transition === 'yes') wipeScreen(g);

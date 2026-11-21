@@ -43,6 +43,16 @@ export class Surface {
     for (let y = Math.max(0, y0); y < Math.min(height, y1); y++) px.fill(color, y * width + xa, y * width + xb);
   }
 
+  // The pixels of the rectangle (x, y, w, h), in real pixels, as a new array.
+  copyRect(x, y, w, h) {
+    const out = new Uint32Array(w * h);
+    for (let row = 0; row < h; row++) {
+      const from = (y + row) * this.width + x;
+      out.set(this.px.subarray(from, from + w), row * w);
+    }
+    return out;
+  }
+
   // Moves the picture up by `rows` and clears the rows that become free at the bottom.
   scrollUp(rows, color) {
     const { px, width, height } = this;

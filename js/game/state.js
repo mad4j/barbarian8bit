@@ -1,5 +1,6 @@
 // The whole state of a game, shared by all steps of the frame loop (see steps.js).
 import { createFighter } from './fighter.js';
+import { ORIGINAL_VIEW } from './render/view.js';
 
 export function createGame(rt, menu) {
   return {
@@ -52,9 +53,11 @@ export function createGame(rt, menu) {
     bloodCellY: 0,
 
     // pictures and fonts
-    backgroundImage: 0,
-    treeLeftImage: 0,
-    treeRightImage: 0,
+    view: ORIGINAL_VIEW,   // how big and how low the fighters are drawn (see render/view.js)
+    arenaCopies: {},       // the arena pictures copied from the picture of a stage, by stage (see game/stage.js)
+    backdrop: null,        // { image, x, y }: the arena between the trees, drawn again on every frame
+    treeLeft: null,        // the trees in front of the fighters at the sides
+    treeRight: null,
     palaceFont: 0,
     showVersion: '',       // 'yes' while V is held
   };

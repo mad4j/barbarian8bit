@@ -121,6 +121,28 @@ export class Graphics {
 
   clearcolor(color, handle) { this.store.clearColor(color, handle); }
 
+  // `_WIDTH` / `_HEIGHT` of an image, in game pixels.
+  imagewidth(handle) {
+    const img = this.store.get(handle);
+    return img ? Math.round(img.w / img.scale) : 0;
+  }
+
+  imageheight(handle) {
+    const img = this.store.get(handle);
+    return img ? Math.round(img.h / img.scale) : 0;
+  }
+
+  /**
+   * `GET`: a copy of the part of the screen (x1, y1)-(x2, y2) (game pixels, corners included) as a new
+   * true-colour image, with every pixel as it is on the screen at its resolution.
+   */
+  getimage(x1, y1, x2, y2) {
+    const s = this.scale;
+    const w = (x2 - x1 + 1) * s;
+    const h = (y2 - y1 + 1) * s;
+    return this.store.add(this.surface.copyRect(x1 * s, y1 * s, w, h), w, h, s);
+  }
+
   /**
    * `_PUTIMAGE`: the whole screen, the image at (x1, y1) in its own size (in game pixels, so a
    * higher-resolution image covers the same area), or stretched / mirrored into (x1, y1)-(x2, y2).
