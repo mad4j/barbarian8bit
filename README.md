@@ -104,6 +104,13 @@ is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) descri
   and the transparency are kept, and the script points the manifest at the new files. To draw better artwork, edit
   the files in `assets/HD/` (keep them paletted where the original is, and twice the size of the C64 original) and
   stop running the script, which overwrites them.
+* **Painted throne room** – `assets/HD/stage/throne.png` is true colour (not paletted): the room is a
+  heroic-fantasy oil painting (`tools/throne_painting.jpg`, made with an image model from a layout reference), mapped
+  onto the game grid by `python tools/draw_throne.py` (needs Pillow and NumPy). It keeps the C64 logo/HUD area, the
+  pillars with their snakes and the label slab (the game draws the opaque 32×8 `1PLR` / `DEMO` picture at 142,192;
+  here it sits on a bronze plate). `throneBackground.png` is a crop of it (game pixels 32,96 to 288,176, which the
+  game draws again on every frame), so always regenerate both together, and don't run `double_artwork.py`
+  afterwards: it would overwrite them with the pixel-doubled C64 picture.
 
 ## English naming
 
