@@ -2,10 +2,15 @@
 assets/HD/stage/throneBackground.png.
 
 The room is a heroic-fantasy oil painting (tools/throne_painting.jpg: made with an image model from a layout
-reference of the room, in the manner of 1970s sword-and-sorcery cover art). This script maps it onto the game
-grid: the stairs end where the floor starts (game y 163), the shadows behind the fighters are lifted so the dark
-sprites stay readable, and a bronze plate holds the "1PLR" / "2PLR" label. Kept from the C64 picture: the logo
-and HUD area, the two pillars with their snakes (shared by all stages) and the snake tails in the bottom corners.
+reference of the room, in the manner of 1970s sword-and-sorcery cover art, then retouched). This script maps it
+onto the game grid, so the room is 252x145 game pixels (1.738:1) and the painting is scaled to its width without
+stretching: the stairs end where the floor starts (game y 168), and the rows that do not fit are taken from the
+stairs, which get flatter from the first step down. A bronze plate holds the "1PLR" / "2PLR" label. Kept from the
+C64 picture: the logo and HUD area, the two pillars with their snakes (shared by all stages) and the snake tails
+in the bottom corners.
+
+With another painting, set PAINTING_TOP, FLATTEN_FROM and STAIRS_BASE (rows of the painting) to match it. The
+best fit is a painting at 1.738:1 (such as 1512x870) with the stairs ending at 74.5% of its height.
 
 throneBackground.png is the strip of the picture that the game draws again on every frame (game pixels
 32,96 to 288,176), so it is cut from the new picture. Run from the repository root:
@@ -29,40 +34,51 @@ W, H = 320 * S, 200 * S
 ROOM = (34, 55, 286, 200)
 ROOM_W, ROOM_H = (ROOM[2] - ROOM[0]) * S, (ROOM[3] - ROOM[1]) * S
 
-STAIRS_BASE = 806     # row of the painting where the stairs end and the floor starts
-FLOOR_START = 163     # game y where the floor starts in the game
+PAINTING_TOP = 28     # first row of the painting that is used (just above the wing tips)
+FLATTEN_FROM = 430    # painting row of the first step: from here down the stairs are flattened gradually
+STAIRS_BASE = 808     # painting row where the stairs end and the floor starts
+FLOOR_START = 168     # game y where the floor starts in the game
+BAND = 6              # rows of the room resampled at a time
 
 
-def smoothstep(x):
-    x = np.clip(x, 0, 1)
-    return x * x * (3 - 2 * x)
+def source_rows(scale, floor_row):
+    """Painting row at the top of every room row, from the top of the room down to the floor.
+
+    The painting is wider than it is tall for the room, so figures, windows and walls keep the horizontal
+    scale; the few rows that do not fit are taken from the stairs, which get flatter from the first step down."""
+    def room_rows(end_scale):
+        ys = np.arange(PAINTING_TOP, STAIRS_BASE + 0.25, 0.5)
+        k = np.where(ys < FLATTEN_FROM, scale,
+                     scale + (end_scale - scale) * (ys - FLATTEN_FROM) / (STAIRS_BASE - FLATTEN_FROM))
+        return ys, np.concatenate([[0], np.cumsum(0.5 / k[:-1])])
+
+    low, high = scale, scale * 20
+    for _ in range(60):
+        middle = (low + high) / 2
+        if room_rows(middle)[1][-1] > floor_row:
+            low = middle
+        else:
+            high = middle
+    ys, rows = room_rows(high)
+    return lambda row: np.interp(row, rows, ys)
 
 
 def paint_room():
-    """The painting at the size of the room, the floor and the stairs placed where the game expects them."""
+    """The painting at the size of the room, with the stairs ending where the floor starts in the game."""
     painting = Image.open(PAINTING).convert('RGB')
     width, height = painting.size
+    scale = width / ROOM_W
     floor_row = (FLOOR_START - ROOM[1]) * S
-    stairs = painting.resize((ROOM_W, floor_row), Image.LANCZOS, box=(0, 0, width, STAIRS_BASE))
-    floor = painting.resize((ROOM_W, ROOM_H - floor_row), Image.LANCZOS, box=(0, STAIRS_BASE, width, height))
     room = Image.new('RGB', (ROOM_W, ROOM_H))
-    room.paste(stairs, (0, 0))
+    source = source_rows(scale, floor_row)
+    for top in range(0, floor_row, BAND):
+        bottom = min(top + BAND, floor_row)
+        box = (0, float(source(top)), width, float(source(bottom)))
+        room.paste(painting.resize((ROOM_W, bottom - top), Image.LANCZOS, box=box), (0, top))
+    floor = painting.resize((ROOM_W, ROOM_H - floor_row), Image.LANCZOS, box=(0, STAIRS_BASE, width, height))
     room.paste(floor, (0, floor_row))
-    room = room.filter(ImageFilter.UnsharpMask(radius=1.2, percent=70, threshold=2))
-    px = np.asarray(room, np.float32) / 255
-
-    # the throne stays dramatic; behind the fighters the shadows are lifted (gamma < 1)
-    rows = np.arange(ROOM_H, dtype=np.float32)
-    gamma = 1 - 0.40 * smoothstep((rows - 70) / 50) + 0.16 * smoothstep((rows - floor_row) / 18)
-    px = px ** gamma[:, None, None]
-
-    # a shadow under the logo, and a soft edge towards the pillars
-    ceiling = 1 - smoothstep(rows / 14)
-    px *= (1 - 0.92 * ceiling)[:, None, None]
-    cols = np.arange(ROOM_W, dtype=np.float32)
-    edge = np.minimum(cols, ROOM_W - 1 - cols)
-    px *= (0.55 + 0.45 * smoothstep(edge / 18))[None, :, None]
-    return px * 255
+    room = room.filter(ImageFilter.UnsharpMask(radius=1.0, percent=40, threshold=2))
+    return np.asarray(room, np.float32)
 
 
 def nameplate(out):
