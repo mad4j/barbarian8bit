@@ -3,8 +3,9 @@ draw_snakes.py). It is a rough 3D render on a black background, so that what the
 
 * a stone column on a stepped base, and the snake as ONE tube that winds round it in a regular helix: it crosses the
   front slanting down to the right, goes round the right edge, behind the shaft (where only what sticks out at the
-  sides shows) and comes back round the left edge. Its tail leaves the last turn, hangs down in front of the base and
-  lies on the floor. At the top the neck rises along the left edge and the head faces the arena, above a skull;
+  sides shows) and comes back round the left edge. Its last turn crosses the front, and the tail leaves it there and falls
+  in front of the shaft and of the base to the floor, where it lies. At the top the neck rises along the left edge and
+  the head faces the arena, above the capital: a big skull with a smaller one at each side, and no stone cap;
 * the same top of the column in three poses of the head (calm, mouth half open with the tongue out, mouth wide open
   with fangs), one under the other, to the right of the column: the head of a plain snake, as wide as its neck;
 * a big skull, from which the skulls of the life indicators are cut.
@@ -21,7 +22,7 @@ OUT = Path(__file__).resolve().parent / 'snakes_layout.png'
 
 W, H, SS = 1024, 1536, 2                        # the sheet, and how much finer it is drawn than it is saved
 CX, SHAFT = 162.5, 80.5                         # the axis of the column and the radius of its shaft
-TOP, BASE = 405, 1100                           # the rows of the top of the shaft and of its foot
+TOP, BASE = 440, 1100                           # the rows of the top of the shaft (under the skulls) and of its foot
 TUBE = 27                                       # the radius of the snake's body
 HELIX = SHAFT + TUBE                            # the radius of the helix its centre follows
 PITCH, START = 160, 462                         # the height of a turn, and the row where the first one begins
@@ -36,7 +37,7 @@ POSES = [
     dict(tilt=12, jaw=22, neck=(176, 270), arch=0.6, fangs=False, tongue=58),
     dict(tilt=26, jaw=44, neck=(214, 262), arch=1.0, fangs=True, tongue=70),
 ]
-PANEL_DX, PANEL_DY, PANEL_BOTTOM = 295, (0, 322, 640), 447
+PANEL_DX, PANEL_DY, PANEL_BOTTOM = 295, (0, 340, 680), 480
 
 
 class Sheet:
@@ -134,7 +135,7 @@ def spline(points, count):
 
 # ---------------------------------------------------------------------------------------------------- the column
 def draw_column(sheet, with_base=True, bottom=None):
-    """The shaft with its drums, the cap on top of it and, below, the stepped base."""
+    """The shaft with its drums and, below, the stepped base (the top of the shaft is hidden by the skulls of the capital)."""
     last = BASE if bottom is None else bottom
     xs = np.arange(int((CX - SHAFT) * SS), int((CX + SHAFT) * SS))
     dx = ((xs + 0.5) / SS - CX) / SHAFT
@@ -144,13 +145,6 @@ def draw_column(sheet, with_base=True, bottom=None):
     for y in range(TOP * SS, last * SS):
         seam = (y / SS - TOP) % 174 < 3 and y / SS > TOP + 20
         sheet.paint((y, y + 1, xs[0], xs[-1] + 1), (nz * SHAFT)[None, :], (column * (0.45 if seam else 1))[None, :, :], np.ones((1, len(xs)), bool))
-    # the cap on top of the shaft: a little wider, rounded
-    cap = np.arange(int((CX - 90) * SS), int((CX + 90) * SS))
-    cdx = ((cap + 0.5) / SS - CX) / 90
-    cnz = np.sqrt(np.maximum(1 - cdx ** 2, 0))
-    ccol = shade((126, 96, 70), np.clip(cdx * LIGHT[0] + cnz * LIGHT[2], 0, 1), False)
-    for y in range((TOP - 24) * SS, (TOP + 8) * SS):
-        sheet.paint((y, y + 1, cap[0], cap[-1] + 1), (cnz * 90 + 1)[None, :], ccol[None, :, :], np.ones((1, len(cap)), bool))
     if not with_base:
         return
     steps = [(BASE, BASE + 24, 88, (130, 98, 70), True), (BASE + 24, BASE + 76, 94, (116, 88, 64), False),
@@ -200,10 +194,10 @@ def draw_skull(sheet, x, y, width, height, z):
 
 
 # ---------------------------------------------------------------------------------------------------- the snake
-def helix_points(turns=4, exit_angle=np.pi / 2 + 0.65):
+def helix_points(turns=4, end_angle=0.5):
     """The centre of the body from the left edge of the column at its top (the neck is joined there) down to where the last
-    turn has gone round the right edge and behind the column: 3D points (x, y, z), z towards the viewer."""
-    last = -np.pi / 2 + 2 * np.pi * (turns - 1) + np.pi / 2 + exit_angle
+    turn crosses the front of the column, going right: 3D points (x, y, z), z towards the viewer. The tail leaves it there."""
+    last = 2 * np.pi * (turns - 1) + end_angle
     phi = np.linspace(-np.pi / 2 - 0.25, last, int((last + np.pi / 2) * HELIX / 3))
     k = PITCH / (2 * np.pi)
     return np.stack([CX + HELIX * np.sin(phi), START + k * (phi + np.pi / 2), HELIX * np.cos(phi)], axis=1)
@@ -219,15 +213,13 @@ def neck_points(pose, count=110):
 
 
 def tail_points(end):
-    """The tail: the body goes on behind the column from `end` (where the last turn has gone behind it), comes out from
-    behind the right edge of the column, lower than that turn, hangs down in front of the base and lies on the floor to the
-    right, tapering to a thin tip. The part behind the shaft is hidden; only the end of it shows beside the shaft."""
+    """The tail: the body goes on from `end`, where the last turn crosses the front of the column, and falls in front of the
+    shaft and of the base to the floor, where it lies curving to the right, tapering to a thin tip."""
     x0, y0, z0 = end
-    right = CX + HELIX
-    path = [(x0, y0, z0), (CX + 48, y0 + 34, -HELIX * 0.85), (CX + 84, y0 + 62, -HELIX * 0.55), (right + 8, y0 + 92, -30),
-            (right + 36, y0 + 124, -6), (right + 46, 1170, 50), (right + 50, 1215, 132), (right + 76, 1252, 140),
-            (right + 140, 1264, 140), (right + 205, 1250, 140), (right + 270, 1258, 140), (right + 330, 1248, 140)]
-    return spline(path, 340)
+    path = [(x0, y0, z0), (CX + 82, y0 + 14, 98), (CX + 92, y0 + 58, 106), (CX + 74, y0 + 116, 116), (CX + 40, y0 + 168, 128),
+            (CX + 24, 1208, 140), (CX + 44, 1248, 150), (CX + 96, 1272, 152), (CX + 152, 1274, 152), (CX + 212, 1258, 152),
+            (CX + 276, 1266, 152), (CX + 340, 1254, 152), (CX + 410, 1250, 152)]
+    return spline(path, 420)
 
 
 def draw_head(sheet, pose, dx=0, dy=0):
@@ -276,7 +268,11 @@ def draw_head(sheet, pose, dx=0, dy=0):
 def add_top(sheet, pose, with_base):
     """The top of the column with its skull, and the neck and the head in `pose`."""
     draw_column(sheet, with_base=with_base, bottom=None if with_base else PANEL_BOTTOM)
-    draw_skull(sheet, CX - 48, TOP - 66, 98, 80, 250)
+    # the capital is all skulls: a big one in front of the top of the shaft and a smaller one at each side, which make it
+    # wider than the shaft (the one on the left is behind the neck of the snake)
+    draw_skull(sheet, CX - 126, TOP - 52, 92, 76, -5)
+    draw_skull(sheet, CX + 34, TOP - 52, 92, 76, 200)
+    draw_skull(sheet, CX - 90, TOP - 118, 180, 144, 250)
     sheet.tube(neck_points(pose), TUBE)
     draw_head(sheet, pose)
 
@@ -287,7 +283,7 @@ def main():
     add_top(sheet, POSES[0], True)
     helix = helix_points()
     sheet.tube(helix, TUBE)
-    sheet.tube(tail_points(helix[-1]), [TUBE, TUBE, TUBE, TUBE, TUBE * 0.9, TUBE * 0.7, TUBE * 0.45, TUBE * 0.2, 2])
+    sheet.tube(tail_points(helix[-1]), [TUBE] * 5 + [TUBE * 0.95, TUBE * 0.8, TUBE * 0.6, TUBE * 0.4, TUBE * 0.2, 2])
     # the three poses, to the right, each with the top of the column down to PANEL_BOTTOM
     for pose, dy in zip(POSES, PANEL_DY):
         panel = Sheet()

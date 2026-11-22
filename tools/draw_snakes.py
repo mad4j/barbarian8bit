@@ -6,8 +6,9 @@ life of each fighter as 6 brown blobs. They are painted here in the style of the
 tools/snakes_painting.png is an oil painting made with an image model, in the style of tools/throne_painting.jpg, from
 a layout reference (tools/snakes_layout.png: the pillar with its base and the snake coiled round it, the three head
 poses as they sit on the game grid, and a big skull) on a black background. It holds the column on a stepped base, with
-the violet snake (the colour of player A's) wrapped round it in a spiral and its tail hanging down the base and lying
-on the floor, the head in the two poses of a hurt snake, and the skull. This script maps it onto the game:
+the violet snake (the colour of player A's) wrapped round it in a spiral, its last coil crossing the front and its tail
+falling in front of the shaft and the base and lying on the floor, the head in the two poses of a hurt snake, and the
+skull. The column is capped by a capital made of skulls only. This script maps it onto the game:
 
 * the column goes into throne.png at both sides (`paint_pillars`): player B's is player A's mirrored and recoloured
   green, as in the C64 picture. The base and the tail on the floor reach into the room, so the column is laid over the
@@ -32,11 +33,11 @@ MASTER = 6                   # pixels per game pixel of the column that is kept 
 PX_X, PX_Y = 7.05, 7.49      # pixels of the painting per game pixel, across and down: the model paints the column a little
                              # taller than the layout, and these give back the proportions of the layout (see below)
 FLOOR = 200
-HEAD_TOP, HEAD_ROWS, HEAD_WIDTH = 16, 54, 62   # where the game draws the head poses, and their size: they end at row 70,
-                                               # where the column that the fighters walk behind starts (OVERLAY_TOP)
+HEAD_TOP, HEAD_ROWS, HEAD_WIDTH = 16, 64, 62   # where the game draws the head poses, and their size: they end at row 80, a
+                                               # little below where the column that the fighters walk behind starts (OVERLAY_TOP)
 SPAN = 98                    # game pixels covered by the column, from the edge of the screen: the tail reaches there
 CLEAR = 34                   # the C64 picture has its pillar up to this column
-PILLAR_TOP = 58              # the game row of the top of the column (RIM_Y)
+PILLAR_TOP = 60              # the game row of the top of the column (RIM_Y), the top of its skulls
 SHADOW_FROM = 172            # the game row where the floor starts: the base and the tail cast a shadow on it
 FLOOR_VISIBLE = SHADOW_FROM  # the floor goes on to the edge of the screen, under and beside the base (the room's floor, mirrored)
 # the fighters walk behind the column: what covers them is cut out of the picture, from the top of what a fighter of the
@@ -44,25 +45,25 @@ FLOOR_VISIBLE = SHADOW_FROM  # the floor goes on to the edge of the screen, unde
 # lies on the floor below that, where nobody walks.
 OVERLAY_TOP, OVERLAY_ROWS, OVERLAY_WIDTH = 70, 120, 46
 
-# marks on the painting (pixels): game column 0 (the left of the coils), the top of the column (its cap) and its foot,
-# the column and the rows of the poses' sheet (it holds only the poses to the right of that column and above that row),
-# where the first guess of the two other head poses is, and the big skull. The cap is at row 58 of the game and the foot
-# at about 186, which with the width of the shaft gives PX_X and PX_Y.
+# marks on the painting (pixels): game column 0 (the left of the coils), the top of the column (the top of its skulls) and
+# its foot, the column and the rows of the poses' sheet (it holds only the poses to the right of that column and above that
+# row), where the first guess of the two other head poses is, and the big skull. The top is at row 60 of the game and the
+# foot at about 196, which with the width of the shaft gives PX_X and PX_Y.
 COLUMN_X = 24
-RIM_Y = 368
-SHEET_X, SHEET_Y = 328, 1135
-POSE_GUESS = {1: (309, 337), 2: (309, 676)}
+RIM_Y = 307
+SHEET_X, SHEET_Y = 328, 1170
+POSE_GUESS = {1: (310, 342), 2: (310, 690)}
 # the first row of the painting that belongs to each of these poses (above it the sheet holds the picture before)
-POSE_START = {1: 485, 2: 815}
-SKULL_AREA = (690, 110, 950, 370)
-# the part of the column that the head poses are lined up on: the skull and the cap, rows and columns
-MATCH = (320, 450, 85, 280)
-# The cap of the column and the skull never move: in every pose they are the ones of the calm pose, and only what is
-# snake (violet, or the red of the mouth and the tongue) is taken from the pose. The box that holds them, in game
-# pixels (left, right, top; it goes down to the bottom of the poses' pictures):
-STILL_BOX = (11.0, 35.5, 49.0)
-# game rows where the painted pose fades into the picture: below the skull, in the cap, above the bottom of the pose's picture
-FADE = (PILLAR_TOP + 6.4, PILLAR_TOP + 8.4)
+POSE_START = {1: 500, 2: 850}
+SKULL_AREA = (665, 130, 900, 370)
+# the part of the column that the head poses are lined up on: the skulls, rows and columns
+MATCH = (300, 460, 60, 290)
+# The skulls of the column never move: in every pose they are the ones of the calm pose, and only what is snake (violet,
+# or the red of the mouth and the tongue) is taken from the pose. The box that holds them, in game pixels (left, right,
+# top; it goes down to the bottom of the poses' pictures):
+STILL_BOX = (6.5, 37.5, 59.0)
+# game rows where the painted pose fades into the picture: below the skulls' jaws, above the bottom of the pose's picture
+FADE = (PILLAR_TOP + 15.0, PILLAR_TOP + 18.0)
 # the key that turns the black of the painting into transparency: brightness below LOW is clear, above HIGH solid
 KEY = (8, 30)
 
@@ -89,7 +90,11 @@ def window(x, y, width, height):
     """The painting from pixel (x, y), `width` x `height` game pixels, as an RGB float array at MASTER."""
     p = painting()
     x0, y0 = int(round(x)), int(round(y))
-    crop = p[max(y0, 0):y0 + int(round(height * PX_Y)), x0:x0 + int(round(width * PX_X))]
+    w, h = int(round(width * PX_X)), int(round(height * PX_Y))
+    crop = np.zeros((h, w, 3), np.float32)                  # what is outside the painting is black
+    sy, sx = max(y0, 0), max(x0, 0)
+    part = p[sy:y0 + h, sx:x0 + w]
+    crop[sy - y0:sy - y0 + part.shape[0], sx - x0:sx - x0 + part.shape[1]] = part
     return resized(crop, (int(width * MASTER), int(height * MASTER)))
 
 
@@ -227,7 +232,7 @@ def column_overlay(picture, side, s):
 def head_layer(pose):
     """The top of the column of player A with the head in `pose` (0 to 2), as RGB (straight) and alpha arrays at MASTER:
     HEAD_ROWS x HEAD_WIDTH game pixels from the corner of the picture. Pose 0 is the column; the others are painted over
-    it down to the cap and fade into it below, so the column stays seamless."""
+    it down to the skulls and fade into it below, so the column stays seamless."""
     rgb, alpha = column()
     rows, columns = HEAD_ROWS * MASTER, HEAD_WIDTH * MASTER
     rgb0, alpha0 = rgb[:rows, :columns], alpha[:rows, :columns]
@@ -238,7 +243,7 @@ def head_layer(pose):
     game_rows = HEAD_TOP + (np.arange(rows) + 0.5) / MASTER
     game_columns = (np.arange(columns) + 0.5) / MASTER
     keep = np.repeat((1 - smoothstep(*FADE, game_rows))[:, None], columns, axis=1)
-    # the cap and the skull stay as they are in the calm pose: inside their box only the snake comes from the pose
+    # the skulls stay as they are in the calm pose: inside their box only the snake comes from the pose
     left, right, top = STILL_BOX
     inside = (game_columns[None, :] >= left) & (game_columns[None, :] <= right) & (game_rows[:, None] >= top)
     red, green_, blue = shot[..., 0], shot[..., 1], shot[..., 2]

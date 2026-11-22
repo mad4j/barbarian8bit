@@ -126,10 +126,12 @@ is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) descri
   `tools/snakes_layout.png`, in the style of the throne painting, on a black background). The layout is a rough 3D
   render made by `python tools/draw_snakes_layout.py`: each column stands on a stepped base, and the snake is a plain
   snake (not a cobra: its head is a smooth wedge as wide as its neck, with no hood) that winds round the shaft in a
-  regular spiral of constant thickness, with its tail coming out from behind the shaft below the last coil and lying on
-  the floor of the room; in the open-mouth poses (`POSES`: `tilt`, `jaw`, `neck`, `arch`) the head turns down toward
+  regular spiral of constant thickness, with its last coil crossing the front of the column and its tail falling in front
+  of the shaft and of the base to the floor of the room, where it lies. The capital is made of skulls only (a big one with
+  a smaller one at each side, no stone cap); the columns stand low on the screen, with their foot below the fighters'.
+  In the open-mouth poses (`POSES`: `tilt`, `jaw`, `neck`, `arch`) the head turns down toward
   the fighter. The painting is laid over the room picture wherever it is not black, with a soft shadow on the floor;
-  the cap and skull of the column always come from the calm pose (`STILL_BOX` in `draw_snakes.py`), so they never move
+  the skulls of the column always come from the calm pose (`STILL_BOX` in `draw_snakes.py`), so they never move
   between poses.
   `tools/draw_snakes.py`, called by `draw_throne.py`, maps it onto the game grid: the columns go into `throne.png`
   (player B's is A's mirrored and recoloured green) and the three poses of each snake head (calm, mouth half open with
