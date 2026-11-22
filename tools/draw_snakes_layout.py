@@ -3,9 +3,11 @@ draw_snakes.py). It is a rough 3D render on a black background, so that what the
 
 * a stone column on a stepped base, and the snake as ONE tube that winds round it in a regular helix: it crosses the
   front slanting down to the right, goes round the right edge, behind the shaft (where only what sticks out at the
-  sides shows) and comes back round the left edge. Its last turn crosses the front, and the tail leaves it there and falls
-  in front of the shaft and of the base to the floor, where it lies. At the top the neck rises along the left edge and
-  the head faces the arena, above the capital: a big skull with a smaller one at each side, and no stone cap;
+  sides shows) and comes back round the left edge. After its last front crossing it goes round the right edge once more and
+  behind the shaft and the base (hidden by them), and the tail comes out at the left edge, the one next to the edge of the
+  screen, low down by the base and apart from the last coil, and falls in front of the left corner of the base to the floor,
+  where it lies. At the top the neck rises along the left edge and
+  the head faces the arena, held high above the capital: one big skull set into the top of the shaft, and no stone cap;
 * the same top of the column in three poses of the head (calm, mouth half open with the tongue out, mouth wide open
   with fangs), one under the other, to the right of the column: the head of a plain snake, as wide as its neck;
 * a big skull, from which the skulls of the life indicators are cut.
@@ -33,9 +35,9 @@ SNAKE, STONE, BONE = (118, 98, 196), (112, 84, 62), (226, 208, 172)
 # of the neck and how much it arches over the skull (0..1), whether the fangs and the tongue show, and how far the tongue
 # reaches. The open mouth turns towards the fighter (down and to the right), as in a strike.
 POSES = [
-    dict(tilt=-4, jaw=0, neck=(122, 285), arch=0.0, fangs=False, tongue=0),
-    dict(tilt=12, jaw=22, neck=(176, 270), arch=0.6, fangs=False, tongue=58),
-    dict(tilt=26, jaw=44, neck=(214, 262), arch=1.0, fangs=True, tongue=70),
+    dict(tilt=-4, jaw=0, neck=(122, 232), arch=0.0, fangs=False, tongue=0),
+    dict(tilt=12, jaw=22, neck=(176, 218), arch=0.6, fangs=False, tongue=58),
+    dict(tilt=26, jaw=44, neck=(214, 210), arch=1.0, fangs=True, tongue=70),
 ]
 PANEL_DX, PANEL_DY, PANEL_BOTTOM = 295, (0, 340, 680), 480
 
@@ -159,22 +161,29 @@ def draw_column(sheet, with_base=True, bottom=None):
             sheet.paint((y, y + 1, x[0], x[-1] + 1), (nzz * half + 1)[None, :], np.clip(col * edge, 0, 255)[None, :, :], np.ones((1, len(x)), bool))
 
 
-def skull_image(width, height):
-    """A front view skull, lit from the right, as RGBA at SS times `width` x `height`."""
+def skull_image(width, height, eyes=(1.0, 1.0), skew=0.0, gaps=(), crack=False):
+    """A front view skull, lit from the right, as RGBA at SS times `width` x `height`. To make no two alike: `eyes` is the
+    size of each socket (one can be sunken and bigger), `skew` slides the jaw to a side (a fraction of the width), `gaps`
+    are the teeth that are missing (0 to 3) and `crack` runs a split from the brow down to the left socket."""
     w, h = width * SS, height * SS
     image = Image.new('L', (w, h), 0)
     d = ImageDraw.Draw(image)
+    j = skew * w
     d.ellipse([w * 0.02, h * 0.0, w * 0.98, h * 0.78], fill=255)
-    d.polygon([(w * 0.22, h * 0.6), (w * 0.78, h * 0.6), (w * 0.74, h * 0.9), (w * 0.64, h), (w * 0.36, h), (w * 0.26, h * 0.9)], fill=255)
+    d.polygon([(w * 0.22 + j * 0.4, h * 0.6), (w * 0.78 + j * 0.4, h * 0.6), (w * 0.74 + j, h * 0.9), (w * 0.64 + j, h),
+               (w * 0.36 + j, h), (w * 0.26 + j, h * 0.9)], fill=255)
     bone = np.asarray(image, np.float32) / 255
     holes = Image.new('L', (w, h), 0)
     d = ImageDraw.Draw(holes)
-    d.ellipse([w * 0.14, h * 0.34, w * 0.44, h * 0.64], fill=255)
-    d.ellipse([w * 0.56, h * 0.34, w * 0.86, h * 0.64], fill=255)
-    d.polygon([(w * 0.5, h * 0.6), (w * 0.43, h * 0.78), (w * 0.57, h * 0.78)], fill=255)
+    for cx, size in ((0.29, eyes[0]), (0.71, eyes[1])):
+        d.ellipse([w * (cx - 0.15 * size), h * (0.49 - 0.15 * size), w * (cx + 0.15 * size), h * (0.49 + 0.15 * size)], fill=255)
+    d.polygon([(w * 0.5 + j * 0.5, h * 0.6), (w * 0.43 + j * 0.5, h * 0.78), (w * 0.57 + j * 0.5, h * 0.78)], fill=255)
     for k in range(4):
-        x = w * (0.40 + 0.067 * k)
-        d.rectangle([x - w * 0.008, h * 0.88, x + w * 0.008, h], fill=255)
+        if k not in gaps:
+            x = w * (0.40 + 0.067 * k) + j
+            d.rectangle([x - w * 0.008, h * 0.88, x + w * 0.008, h], fill=255)
+    if crack:
+        d.line([(w * 0.46, h * 0.02), (w * 0.4, h * 0.14), (w * 0.44, h * 0.24), (w * 0.33, h * 0.36)], fill=255, width=max(int(w * 0.018), 1))
     holes = np.asarray(holes, np.float32) / 255
     blur = np.asarray(Image.fromarray((bone * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(h * 0.09)), np.float32) / 255
     gy, gx = np.gradient(blur * h * 0.5)
@@ -185,18 +194,26 @@ def skull_image(width, height):
     return np.dstack([rgb, bone * 255]).astype(np.float32)
 
 
-def draw_skull(sheet, x, y, width, height, z):
-    """The skull from `skull_image` with its top left corner at (x, y), put where it is nearer than z."""
-    sk = skull_image(width, height)
-    y0, x0 = int(y * SS), int(x * SS)
+def draw_skull(sheet, x, y, width, height, z, tilt=0.0, flip=False, **look):
+    """The skull from `skull_image` centred where its top left corner at (x, y) would put the middle of it, turned by `tilt`
+    degrees (positive = anticlockwise) and mirrored if `flip`, put where it is nearer than z. `look` goes to `skull_image`."""
+    sk = skull_image(width, height, **look)
+    if flip:
+        sk = sk[:, ::-1]
+    if tilt:
+        image = Image.fromarray(np.ascontiguousarray(np.clip(sk, 0, 255).astype(np.uint8)), 'RGBA')
+        sk = np.asarray(image.rotate(tilt, Image.BICUBIC, expand=True), np.float32)
+    cx, cy = x + width / 2, y + height / 2
+    y0, x0 = int(cy * SS - sk.shape[0] / 2), int(cx * SS - sk.shape[1] / 2)
     window = (y0, y0 + sk.shape[0], x0, x0 + sk.shape[1])
     sheet.paint(window, np.full(sk.shape[:2], z, np.float32), sk[..., :3], sk[..., 3] > 127)
 
 
 # ---------------------------------------------------------------------------------------------------- the snake
-def helix_points(turns=4, end_angle=0.5):
+def helix_points(turns=4, end_angle=np.pi / 2 + 0.9):
     """The centre of the body from the left edge of the column at its top (the neck is joined there) down to where the last
-    turn crosses the front of the column, going right: 3D points (x, y, z), z towards the viewer. The tail leaves it there."""
+    turn, having crossed the front and gone round the right edge, is behind the shaft (hidden by it): 3D points (x, y, z), z
+    towards the viewer. The tail leaves it there."""
     last = 2 * np.pi * (turns - 1) + end_angle
     phi = np.linspace(-np.pi / 2 - 0.25, last, int((last + np.pi / 2) * HELIX / 3))
     k = PITCH / (2 * np.pi)
@@ -208,18 +225,18 @@ def neck_points(pose, count=110):
     further the neck rises before it bends over towards the head."""
     nx, ny = pose['neck']
     a = pose['arch']
-    top = bezier([(CX - HELIX, START), (CX - HELIX, START - 130 - 40 * a), (CX - HELIX + 14 + a * (nx - 123), ny + 70 - a * 100), (nx, ny)], count)
+    top = bezier([(CX - HELIX, START), (CX - HELIX, START - 190 - 40 * a), (CX - HELIX + 14 + a * (nx - 123), ny + 70 - a * 100), (nx, ny)], count)
     return np.column_stack([top, np.zeros(count)])
 
 
 def tail_points(helix):
-    """The tail: the body goes on from the end of `helix`, where the last turn crosses the front of the column, without a bend: it keeps
-    the slant of the coil (down to the right, as in the C64 picture), swings over the right edge of the base, which it
-    crosses in front, and comes down to the floor, where it curves to the right and lies, tapering to a thin tip."""
+    """The tail: the body goes on from the end of `helix`, behind the shaft and the base (hidden by them), falling, and comes
+    out at the left edge, the one next to the edge of the screen, low down by the base, apart from the last coil. It falls in
+    front of the left corner of the base to the floor, where it curves to the right and lies, tapering to a short thin tip."""
     x0, y0, z0 = helix[-1]
-    path = [tuple(helix[-40]), tuple(helix[-20]), (x0, y0, z0), (CX + 92, y0 + 28, 98), (CX + 122, y0 + 78, 104), (CX + 130, y0 + 138, 116), (CX + 114, y0 + 196, 130),
-            (CX + 106, 1236, 142), (CX + 136, 1268, 150), (CX + 196, 1278, 152), (CX + 258, 1264, 152), (CX + 322, 1270, 152),
-            (CX + 386, 1256, 152), (CX + 450, 1252, 152)]
+    path = [tuple(helix[-40]), tuple(helix[-20]), (x0, y0, z0), (CX + 20, y0 + 40, -107),     (CX - 50, 1120, -105), (CX - 98, 1150, -20),
+                (CX - 108, 1185, 80), (CX - 106, 1222, 130), (CX - 84, 1262, 150), (CX - 20, 1284, 152), (CX + 60, 1280, 152),
+            (CX + 150, 1268, 152), (CX + 240, 1258, 152), (CX + 300, 1254, 152)]
     curve = spline(path, 480)
     start = np.argmin(np.linalg.norm(curve - helix[-1], axis=1))   # the curve goes through the end of the coil: the tail begins there
     return curve[start:]
@@ -271,11 +288,8 @@ def draw_head(sheet, pose, dx=0, dy=0):
 def add_top(sheet, pose, with_base):
     """The top of the column with its skull, and the neck and the head in `pose`."""
     draw_column(sheet, with_base=with_base, bottom=None if with_base else PANEL_BOTTOM)
-    # the capital is all skulls: a big one in front of the top of the shaft and a smaller one at each side, which make it
-    # wider than the shaft (the one on the left is behind the neck of the snake)
-    draw_skull(sheet, CX - 126, TOP - 52, 92, 76, -5)
-    draw_skull(sheet, CX + 34, TOP - 52, 92, 76, 200)
-    draw_skull(sheet, CX - 90, TOP - 118, 180, 144, 250)
+    # the capital is one big skull, set into the top of the shaft: a little wider than it, its jaw sunk into the stone
+    draw_skull(sheet, CX - 94, TOP - 112, 188, 152, 250, tilt=-5, skew=-0.03, eyes=(1.1, 0.92), crack=True)
     sheet.tube(neck_points(pose), TUBE)
     draw_head(sheet, pose)
 

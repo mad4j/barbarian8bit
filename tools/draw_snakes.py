@@ -6,8 +6,8 @@ life of each fighter as 6 brown blobs. They are painted here in the style of the
 tools/snakes_painting.png is an oil painting made with an image model, in the style of tools/throne_painting.jpg, from
 a layout reference (tools/snakes_layout.png: the pillar with its base and the snake coiled round it, the three head
 poses as they sit on the game grid, and a big skull) on a black background. It holds the column on a stepped base, with
-the violet snake (the colour of player A's) wrapped round it in a spiral, its last coil crossing the front and its tail
-falling in front of the shaft and the base and lying on the floor, the head in the two poses of a hurt snake, and the
+the violet snake (the colour of player A's) wrapped round it in a spiral, its tail leaving the last coil behind the shaft,
+coming out low down at the left edge (next to the edge of the screen), apart from the coil, and falling to the floor, where it lies, the head in the two poses of a hurt snake, and the
 skull. The column is capped by a capital made of skulls only. This script maps it onto the game:
 
 * the column goes into throne.png at both sides (`paint_pillars`): player B's is player A's mirrored and recoloured
@@ -33,7 +33,7 @@ MASTER = 6                   # pixels per game pixel of the column that is kept 
 PX_X, PX_Y = 7.05, 7.49      # pixels of the painting per game pixel, across and down: the model paints the column a little
                              # taller than the layout, and these give back the proportions of the layout (see below)
 SPLIT_ROW = 88                # the shaft, the coils and the base (below this game row) are reduced a little more, to PX_Y_LOW,
-PX_Y_LOW = 8.11               # so that the foot of the column, which the model paints low, lands on row 196: see SPLIT_Y
+PX_Y_LOW = 8.0                # so that the foot of the column, which the model paints low, lands on row 196: see SPLIT_Y
 FLOOR = 200
 HEAD_TOP, HEAD_ROWS, HEAD_WIDTH = 36, 44, 62   # where the game draws the head poses (`snakeY` in stage.js), and their size: they end at row 80, a
                                                # little below where the column that the fighters walk behind starts (OVERLAY_TOP)
@@ -53,15 +53,15 @@ OVERLAY_TOP, OVERLAY_ROWS, OVERLAY_WIDTH = 70, 120, 46
 # row), where the first guess of the two other head poses is, and the big skull. The top is at row 60 of the game and the
 # foot at about 196, which with the width of the shaft gives PX_X and PX_Y.
 COLUMN_X = 22
-RIM_Y = 305
+RIM_Y = 318
 SPLIT_Y = RIM_Y + (SPLIT_ROW - PILLAR_TOP) * PX_Y   # the painting row of SPLIT_ROW: the foot is at 1391, row 196 of the game
 SHEET_X, SHEET_Y = 328, 1250
-POSE_GUESS = {1: (312, 352), 2: (312, 700)}
+POSE_GUESS = {1: (310, 360), 2: (310, 700)}
 # the first row of the painting that belongs to each of these poses (above it the sheet holds the picture before)
-POSE_START = {1: 520, 2: 865}
+POSE_START = {1: 520, 2: 855}
 SKULL_AREA = (655, 130, 900, 380)
 # the part of the column that the head poses are lined up on: the skulls, rows and columns
-MATCH = (300, 460, 60, 290)
+MATCH = (315, 455, 60, 290)
 # The skulls of the column never move: in every pose they are the ones of the calm pose, and only what is snake (violet,
 # or the red of the mouth and the tongue) is taken from the pose. The box that holds them, in game pixels (left, right,
 # top; it goes down to the bottom of the poses' pictures):
