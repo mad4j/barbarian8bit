@@ -118,18 +118,39 @@ is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) descri
   resolutions, `assets/HD/stage/` (2×), `assets/HD4/stage/` (4×) and `assets/HD6/stage/` (6×), listed in `"variants"`.
   The room is a heroic-fantasy oil painting (`tools/throne_painting.jpg`, made with an image model from a layout
   reference), mapped onto the game grid by `python tools/draw_throne.py` (needs Pillow and NumPy), which writes all of
-  them. It keeps the C64 logo/HUD area, the pillars with their snakes and the snake tails in the corners.
+  them. It keeps the C64 logo/HUD area.
   The other images stay at 2× and are enlarged by replication on bigger screens. Don't run `double_artwork.py`
   afterwards: it would overwrite the 2× throne with the pixel-doubled C64 picture.
+* **Painted snakes and skulls** – the columns with their coiled snakes, the snake heads and the life indicators are
+  painted in the same style (`tools/snakes_painting.png`: an oil painting made with an image model from the layout
+  `tools/snakes_layout.png`, in the style of the throne painting, on a black background). The layout is a rough 3D
+  render made by `python tools/draw_snakes_layout.py`: each column stands on a stepped base, and the snake is a plain
+  snake (not a cobra: its head is a smooth wedge as wide as its neck, with no hood) that winds round the shaft in a
+  regular spiral of constant thickness, with its tail coming out from behind the shaft below the last coil and lying on
+  the floor of the room; in the open-mouth poses (`POSES`: `tilt`, `jaw`, `neck`, `arch`) the head turns down toward
+  the fighter. The painting is laid over the room picture wherever it is not black, with a soft shadow on the floor;
+  the cap and skull of the column always come from the calm pose (`STILL_BOX` in `draw_snakes.py`), so they never move
+  between poses.
+  `tools/draw_snakes.py`, called by `draw_throne.py`, maps it onto the game grid: the columns go into `throne.png`
+  (player B's is A's mirrored and recoloured green) and the three poses of each snake head (calm, mouth half open with
+  the tongue, mouth wide open with fangs) are written as `throneSnakeA1.png` … `throneSnakeB3.png`, painted over the
+  room picture so they can be as long as the painting makes them; the throne stage names them in `STAGES` (`snakes`:
+  `js/game/render/snakes.js` draws them at the edge of the screen where the other stages draw `snakeA1.gif` …). The
+  fighters walk *behind* the columns: `draw_snakes.py` also cuts each column (shaft, coils and base, game rows 70 to
+  190) out of the finished picture with the painting's transparency as `throneColumnA.png` / `throneColumnB.png`, and
+  the game draws them over the fighters (`columns` in `STAGES`). To change the column, edit the layout script, paint it
+  again and update the marks at the top of `draw_snakes.py`.
+  The life of a fighter is 6 skulls per side instead of the brown blobs; the game blanks them one 8×8 text cell at a
+  time (`js/game/render/hud.js`), so each skull is lost in two halves.
 * **Fighters in proportion** – the sorcerer and the princess of the painted throne room are bigger than the C64
   fighters, so the throne stage has a `view` in `STAGES` (`js/game/stage.js`: `scale` and `floorY`, the row of the
   feet; now 1.5× and row 190 instead of 176). Everything that stands on the floor – the fighters, blood, severed
   heads, the gnome, the wizard's fire – is drawn through `js/game/render/view.js`, bigger and lower, around the middle
   of the fighter's slot; positions, hit zones and the rest of the game keep the original coordinates. The fighters
   then cover more than the original strip of the arena, so for a stage with a `view` the background that is drawn
-  again on every frame under them and the trees in front are copied from the stage picture when it is first shown
-  (there are no files for them), and the trees are always drawn. Stages without a `view` are drawn as before; to
-  resize another stage, give it a `view` too (its picture must show the floor below row 176).
+  again on every frame under them is copied from the stage picture when it is first shown, across the whole screen
+  (there is no file for it), and the columns (above) are drawn over them every frame. Stages without a `view` are
+  drawn as before; to resize another stage, give it a `view` too (its picture must show the floor below row 176).
 * **No player labels** – the stage pictures carry no `1PLR` / `2PLR` / `DEMO` text: the game no longer draws those
   labels, and the `2PLR` that the C64 pictures had at game pixels 142,192 (32×8) has been painted out of the stage
   pictures in `assets/C64/` and `assets/HD/`.

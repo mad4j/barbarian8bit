@@ -54,9 +54,10 @@ export function createGame(rt, menu) {
 
     // pictures and fonts
     view: ORIGINAL_VIEW,   // how big and how low the fighters are drawn (see render/view.js)
+    snakes: 'snake',       // the pictures of the snakes in the corners: C64/stage/<this>A1.gif ... (see game/stage.js)
     arenaCopies: {},       // the arena pictures copied from the picture of a stage, by stage (see game/stage.js)
     backdrop: null,        // { image, x, y }: the arena between the trees, drawn again on every frame
-    treeLeft: null,        // the trees in front of the fighters at the sides
+    treeLeft: null,        // the trees in front of the fighters at the sides (the columns of a stage with a view)
     treeRight: null,
     palaceFont: 0,
     showVersion: '',       // 'yes' while V is held

@@ -70,12 +70,15 @@ export function newRound(g) {
 
 // Picture, background and the trees in front for each stage (file names in assets/C64/stage).
 // A stage with a `view` draws its fighters bigger and lower (see render/view.js). They then cover more than the
-// strip of the original arena, so such a stage has no background and tree files: they are copied from the picture.
+// strip of the original arena, so such a stage has no background and tree files: the background is copied from the
+// picture, across the whole screen, and the `columns` (files `<name>A` and `<name>B`, with transparency, as high as the
+// view reaches) are what the fighters walk behind.
+// `snakes` is the name of the pictures of the snakes in the corners (default 'snake').
 const STAGES = {
   plain: { picture: 'plain', background: 'plainBackground', trees: 'forest' },
   forest: { picture: 'forest', background: 'forestBackground', trees: 'forest' },
   // the fighters of the painted throne room are as big as the sorcerer and the princess on the throne
-  throne: { picture: 'throne', view: { scale: 1.5, floorY: 190 } },
+  throne: { picture: 'throne', view: { scale: 1.5, floorY: 190 }, snakes: 'throneSnake', columns: 'throneColumn' },
   arena: { picture: 'arena', background: 'arenaBackground', trees: 'arena' },
   torture: { picture: 'torture', background: 'tortureBackground', trees: 'arena' },
 };
@@ -100,20 +103,19 @@ function loadArenaFiles(g, stage) {
   for (const tree of [g.treeLeft, g.treeRight]) rt.clearcolor(rt.rgb(247, 0, 0), tree.image);
 }
 
-// The same, cut out of the picture that is on the screen, as far up and down as the view reaches.
-function copyArena(g, view) {
+// The same for a stage with a view: the background is cut out of the picture that is on the screen, across the whole
+// screen and as far up and down as the view reaches; the columns are files that start at the same row.
+function copyArena(g, stage) {
   const { rt } = g;
+  const { view } = stage;
   if (!g.arenaCopies[g.stage]) {
-    const top = viewTop(view);
-    const last = view.floorY - 1;
-    const copy = (x1, x2) => ({ image: rt.getimage(x1, top, x2, last), x: x1, y: top });
-    g.arenaCopies[g.stage] = {
-      backdrop: copy(ARENA_LEFT, ARENA_RIGHT - 1),
-      treeLeft: copy(0, ARENA_LEFT - 1),
-      treeRight: copy(ARENA_RIGHT, 319),
-    };
+    g.arenaCopies[g.stage] = { image: rt.getimage(0, viewTop(view), 319, view.floorY - 1), x: 0, y: viewTop(view) };
   }
-  Object.assign(g, g.arenaCopies[g.stage]);
+  g.backdrop = g.arenaCopies[g.stage];
+  const column = (side) => rt.loadimage(`C64/stage/${stage.columns}${side}.gif`);
+  const y = viewTop(view);
+  g.treeLeft = { image: column('A'), x: 0, y };
+  g.treeRight = { image: column('B'), x: 320 - rt.imagewidth(column('B')), y };
 }
 
 function loadStage(g) {
@@ -121,10 +123,11 @@ function loadStage(g) {
   const stage = STAGES[g.stage];
   if (!stage) return;
   g.view = stage.view ?? ORIGINAL_VIEW;
+  g.snakes = stage.snakes ?? 'snake';
   const picture = rt.loadimage(`C64/stage/${stage.picture}.gif`, 256);
   rt.copypalette(picture);
   rt.putimage(picture);
-  if (stage.view) copyArena(g, stage.view);
+  if (stage.view) copyArena(g, stage);
   else loadArenaFiles(g, stage);
 }
 

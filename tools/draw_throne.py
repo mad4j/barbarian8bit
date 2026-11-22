@@ -1,15 +1,16 @@
 """Builds the throne room artwork in several resolutions, in true colour. For each resolution `s` (pixels per game
-pixel) it writes throne.png: s=2 in assets/HD/stage/, s=4 in assets/HD4/stage/ and s=6 in
-assets/HD6/stage/. The game picks the resolution that suits the display (see js/gfx/resolution.js and "variants" in
-assets/manifest.json), so every resolution is reduced here, once, from the painting with the best filter, never
-stretched or shrunk at run time.
+pixel) it writes throne.png, the six pictures of the snake heads (throneSnakeA1.png ... B3) and the two columns that
+the fighters walk behind (throneColumnA.png, throneColumnB.png, with transparency): s=2 in assets/HD/stage/, s=4 in
+assets/HD4/stage/ and s=6 in assets/HD6/stage/. The game picks the resolution that suits the display (see
+js/gfx/resolution.js and "variants" in assets/manifest.json), so every resolution is reduced here, once, from the
+painting with the best filter, never stretched or shrunk at run time.
 
 The room is a heroic-fantasy oil painting (tools/throne_painting.jpg: made with an image model from a layout
 reference of the room, in the manner of 1970s sword-and-sorcery cover art, then retouched). This script maps it
 onto the game grid, so the room is 252x145 game pixels (1.738:1) and the painting is scaled to its width without
 stretching: the stairs end where the floor starts (game y 168), and the rows that do not fit are taken from the
-stairs, which get flatter from the first step down. Kept from the C64 picture: the logo and HUD area, the two
-pillars with their snakes (shared by all stages) and the snake tails in the bottom corners.
+stairs, which get flatter from the first step down. Kept from the C64 picture: the logo and HUD area. The pillars
+with their snakes, the snake heads and the life skulls are painted in the same style, see draw_snakes.py.
 
 With another painting, set PAINTING_TOP, FLATTEN_FROM and STAIRS_BASE (rows of the painting) to match it. The
 best fit is a painting at 1.738:1 with the stairs ending at 74.5% of its height, as wide as the largest
@@ -24,6 +25,8 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image, ImageFilter
+
+from draw_snakes import clear_pillars, column_overlay, paint_life_skulls, paint_pillars, snake_head
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / 'assets/C64/stage/throne.png'
@@ -99,38 +102,32 @@ def paint_room(s):
     return np.asarray(room, np.float32)
 
 
-def snake_tails(out, original, s):
-    """The tails of the pillar snakes curl into the floor in the corners: the C64 pixels, kept."""
-    index = np.asarray(Image.open(SOURCE))
-    core = (index == 14) | (index == 5)
-    window = np.zeros_like(core)
-    window[183:, ROOM[0]:80] = True
-    window[183:, 252:ROOM[2]] = True
-    core &= window
-    grown = core.copy()
-    for dy in (-1, 0, 1):
-        for dx in (-1, 0, 1):
-            grown |= np.roll(np.roll(core, dy, 0), dx, 1)
-    keep = grown & np.isin(index, (0, 3, 14, 5)) & window
-    mask = np.kron(keep, np.ones((s, s), bool))
-    out[mask] = original[mask]
-
-
 def compose(s):
+    """The throne picture (uint8, 200 x 320 game pixels at `s`) and, as floats, the picture of the room before the columns
+    and the life skulls are painted: what the snake heads are painted over."""
     original = np.asarray(Image.open(SOURCE).convert('RGB').resize((320 * s, 200 * s), Image.NEAREST), np.float32)
     out = original.copy()
     x0, y0, x1, y1 = (v * s for v in ROOM)
     out[y0:y1, x0:x1] = paint_room(s)
-    snake_tails(out, original, s)
-    return np.clip(np.rint(out), 0, 255).astype(np.uint8)
+    clear_pillars(out, s)
+    backdrop = out.copy()
+    paint_pillars(out, s)
+    paint_life_skulls(out, s)
+    return np.clip(np.rint(out), 0, 255).astype(np.uint8), backdrop
 
 
 def main():
     for s, folder in FOLDERS.items():
-        picture = compose(s)
+        picture, backdrop = compose(s)
         stage = ROOT / 'assets' / folder / 'stage'
         stage.mkdir(parents=True, exist_ok=True)
         Image.fromarray(picture).save(stage / 'throne.png', optimize=True)
+        for side, letter in (('left', 'A'), ('right', 'B')):
+            for pose in range(3):
+                head = snake_head(pose, side, s, backdrop)
+                Image.fromarray(head).save(stage / f'throneSnake{letter}{pose + 1}.png', optimize=True)
+            overlay = column_overlay(picture, side, s)
+            Image.fromarray(overlay, 'RGBA').save(stage / f'throneColumn{letter}.png', optimize=True)
 
 
 if __name__ == '__main__':

@@ -1,7 +1,15 @@
 {
  "scale": 2,
  "variants": {
-  "C64/stage/throne.gif": {"4": "HD4/stage/throne.png", "6": "HD6/stage/throne.png"}
+  "C64/stage/throne.gif": {"4": "HD4/stage/throne.png", "6": "HD6/stage/throne.png"},
+  "C64/stage/throneSnakeA1.gif": {"4": "HD4/stage/throneSnakeA1.png", "6": "HD6/stage/throneSnakeA1.png"},
+  "C64/stage/throneSnakeA2.gif": {"4": "HD4/stage/throneSnakeA2.png", "6": "HD6/stage/throneSnakeA2.png"},
+  "C64/stage/throneSnakeA3.gif": {"4": "HD4/stage/throneSnakeA3.png", "6": "HD6/stage/throneSnakeA3.png"},
+  "C64/stage/throneSnakeB1.gif": {"4": "HD4/stage/throneSnakeB1.png", "6": "HD6/stage/throneSnakeB1.png"},
+  "C64/stage/throneSnakeB2.gif": {"4": "HD4/stage/throneSnakeB2.png", "6": "HD6/stage/throneSnakeB2.png"},
+  "C64/stage/throneSnakeB3.gif": {"4": "HD4/stage/throneSnakeB3.png", "6": "HD6/stage/throneSnakeB3.png"},
+  "C64/stage/throneColumnA.gif": {"4": "HD4/stage/throneColumnA.png", "6": "HD6/stage/throneColumnA.png"},
+  "C64/stage/throneColumnB.gif": {"4": "HD4/stage/throneColumnB.png", "6": "HD6/stage/throneColumnB.png"}
  },
  "palette": [[0, 0, 0], [255, 255, 255], [137, 64, 54], [122, 191, 199], [138, 70, 174], [104, 169, 65], [62, 49, 162], [208, 220, 113], [144, 95, 37], [92, 71, 0], [187, 119, 109], [85, 85, 85], [128, 128, 128], [172, 234, 136], [124, 112, 218], [171, 171, 171]],
  "images": {
@@ -167,6 +175,14 @@
   "C64/stage/snakeB3.gif": "HD/stage/snakeB3.png",
   "C64/stage/thanks.png": "HD/stage/thanks.png",
   "C64/stage/throne.gif": "HD/stage/throne.png",
+  "C64/stage/throneSnakeA1.gif": "HD/stage/throneSnakeA1.png",
+  "C64/stage/throneSnakeA2.gif": "HD/stage/throneSnakeA2.png",
+  "C64/stage/throneSnakeA3.gif": "HD/stage/throneSnakeA3.png",
+  "C64/stage/throneSnakeB1.gif": "HD/stage/throneSnakeB1.png",
+  "C64/stage/throneSnakeB2.gif": "HD/stage/throneSnakeB2.png",
+  "C64/stage/throneSnakeB3.gif": "HD/stage/throneSnakeB3.png",
+  "C64/stage/throneColumnA.gif": "HD/stage/throneColumnA.png",
+  "C64/stage/throneColumnB.gif": "HD/stage/throneColumnB.png",
   "C64/stage/torture.gif": "HD/stage/torture.png",
   "C64/stage/tortureBackground.gif": "HD/stage/tortureBackground.png",
   "C64/stage/torch1.gif": "HD/stage/torch1.png",

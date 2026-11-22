@@ -26,7 +26,7 @@ function drawTree(g, tree) {
 export function foreground(g) {
   const { a, b } = g;
   // bigger fighters (see view.js) stick out over the sides further than the walking in and out of the original,
-  // so there the trees always stay in front
+  // so there the columns always stay in front: the fighters walk behind them
   const always = !isOriginal(g.view);
   if (always || a.x < 5 || b.x < 5 || (g.gnome === 'yes' && g.gnomeX < 88)) drawTree(g, g.treeLeft);
   if (always || b.x > 31 || a.x > 31 || g.gnomeX > 256 || g.severedX > 263) drawTree(g, g.treeRight);
