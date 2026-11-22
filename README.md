@@ -142,8 +142,10 @@ is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) descri
   190) out of the finished picture with the painting's transparency as `throneColumnA.png` / `throneColumnB.png`, and
   the game draws them over the fighters (`columns` in `STAGES`). To change the column, edit the layout script, paint it
   again and update the marks at the top of `draw_snakes.py`.
-  The life of a fighter is 6 skulls per side instead of the brown blobs; the game blanks them one 8×8 text cell at a
-  time (`js/game/render/hud.js`), so each skull is lost in two halves.
+  The life of a fighter is 6 skulls per side instead of the brown blobs, each 14×14 in a 16×16 cell (3 columns × 2 rows,
+  two rows of the screen high); the stage's `lifeCell` makes the game blank them one 8×16 half cell at a time
+  (`js/game/render/hud.js`), so each skull is lost in two halves. The snake heads are drawn lower (`snakeY`) so that
+  they do not cover the skulls.
 * **Fighters in proportion** – the sorcerer and the princess of the painted throne room are bigger than the C64
   fighters, so the throne stage has a `view` in `STAGES` (`js/game/stage.js`: `scale` and `floorY`, the row of the
   feet; now 1.5× and row 190 instead of 176). Everything that stands on the floor – the fighters, blood, severed

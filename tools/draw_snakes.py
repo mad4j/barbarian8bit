@@ -33,9 +33,10 @@ MASTER = 6                   # pixels per game pixel of the column that is kept 
 PX_X, PX_Y = 7.05, 7.49      # pixels of the painting per game pixel, across and down: the model paints the column a little
                              # taller than the layout, and these give back the proportions of the layout (see below)
 FLOOR = 200
-HEAD_TOP, HEAD_ROWS, HEAD_WIDTH = 16, 64, 62   # where the game draws the head poses, and their size: they end at row 80, a
+HEAD_TOP, HEAD_ROWS, HEAD_WIDTH = 36, 44, 62   # where the game draws the head poses (`snakeY` in stage.js), and their size: they end at row 80, a
                                                # little below where the column that the fighters walk behind starts (OVERLAY_TOP)
 SPAN = 98                    # game pixels covered by the column, from the edge of the screen: the tail reaches there
+CLEAR_TOP = 16               # below the panel of the scores and the life skulls, the pillars of the C64 picture are cleared from this row
 CLEAR = 34                   # the C64 picture has its pillar up to this column
 PILLAR_TOP = 60              # the game row of the top of the column (RIM_Y), the top of its skulls
 SHADOW_FROM = 172            # the game row where the floor starts: the base and the tail cast a shadow on it
@@ -192,7 +193,7 @@ def clear_pillars(out, s):
     room go black, and the floor goes on to the edge of the screen (the room's floor, mirrored)."""
     for side in ('left', 'right'):
         clear = slice(0, CLEAR * s) if side == 'left' else slice((320 - CLEAR) * s, 320 * s)
-        out[HEAD_TOP * s:, clear] = 0
+        out[CLEAR_TOP * s:, clear] = 0
         mirrored = slice(CLEAR * s, 2 * CLEAR * s) if side == 'left' else slice((320 - 2 * CLEAR) * s, (320 - CLEAR) * s)
         out[FLOOR_VISIBLE * s:, clear] = out[FLOOR_VISIBLE * s:, mirrored][:, ::-1]
 
@@ -271,11 +272,13 @@ def snake_head(pose, side, s, backdrop):
     return np.clip(np.rint(sprite), 0, 255).astype(np.uint8)
 
 
-# The 6 skulls of a fighter: 3 columns x 2 rows, each over two of the 8 x 8 text cells that the game blanks one by one
-# as life is lost (hud.js), so a skull is lost in two halves: it is 6 wide and centred on the line between its cells.
-SKULL_COLUMNS = {'left': (4, 20, 36), 'right': (276, 292, 308)}
-SKULL_ROWS = (0, 8)
-SKULL_SIZE = (6, 7)
+# The 6 skulls of a fighter: 3 columns x 2 rows, each in a cell of 16 x 16 game pixels (lifeCell of the throne stage in
+# stage.js: the game blanks 8 x 16 half cells one by one as life is lost, see hud.js), so a skull is lost in two halves.
+# It is 14 x 14 and centred in its cell, with the two halves split down its middle.
+SKULL_COLUMNS = {'left': (0, 16, 32), 'right': (272, 288, 304)}
+SKULL_ROWS = (0, 16)
+SKULL_CELL = 16
+SKULL_SIZE = (14, 14)
 
 
 def life_skull(s):
@@ -297,8 +300,8 @@ def paint_life_skulls(out, s):
     skull = life_skull(s)
     for side, columns in SKULL_COLUMNS.items():
         x0 = 0 if side == 'left' else 272
-        out[:16 * s, x0 * s:(x0 + 48) * s] = 0
+        out[:2 * SKULL_CELL * s, x0 * s:(x0 + 3 * SKULL_CELL) * s] = 0
         for x in columns:
             for y in SKULL_ROWS:
-                left = (x + (8 - SKULL_SIZE[0]) // 2) * s
-                out[y * s:(y + SKULL_SIZE[1]) * s, left:left + SKULL_SIZE[0] * s] = skull
+                left, top = (x + (SKULL_CELL - SKULL_SIZE[0]) // 2) * s, (y + (SKULL_CELL - SKULL_SIZE[1]) // 2) * s
+                out[top:top + SKULL_SIZE[1] * s, left:left + SKULL_SIZE[0] * s] = skull

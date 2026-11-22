@@ -73,12 +73,17 @@ export function newRound(g) {
 // strip of the original arena, so such a stage has no background and tree files: the background is copied from the
 // picture, across the whole screen, and the `columns` (files `<name>A` and `<name>B`, with transparency, as high as the
 // view reaches) are what the fighters walk behind.
-// `snakes` is the name of the pictures of the snakes in the corners (default 'snake').
+// `snakes` is the name of the pictures of the snakes in the corners (default 'snake'), `snakeY` the row they are drawn at
+// (default 16). A `lifeCell` is the size of one of the 12 cells of the life indicator in pixels (default 8x8, the text
+// cells of the original).
 const STAGES = {
   plain: { picture: 'plain', background: 'plainBackground', trees: 'forest' },
   forest: { picture: 'forest', background: 'forestBackground', trees: 'forest' },
   // the fighters of the painted throne room are as big as the sorcerer and the princess on the throne
-  throne: { picture: 'throne', view: { scale: 1.5, floorY: 190 }, snakes: 'throneSnake', columns: 'throneColumn' },
+  throne: {
+    picture: 'throne', view: { scale: 1.5, floorY: 190 }, snakes: 'throneSnake', snakeY: 36, columns: 'throneColumn',
+    lifeCell: { w: 8, h: 16 },
+  },
   arena: { picture: 'arena', background: 'arenaBackground', trees: 'arena' },
   torture: { picture: 'torture', background: 'tortureBackground', trees: 'arena' },
 };
@@ -124,6 +129,8 @@ function loadStage(g) {
   if (!stage) return;
   g.view = stage.view ?? ORIGINAL_VIEW;
   g.snakes = stage.snakes ?? 'snake';
+  g.snakeY = stage.snakeY ?? 16;
+  g.lifeCell = stage.lifeCell ?? null;
   const picture = rt.loadimage(`C64/stage/${stage.picture}.gif`, 256);
   rt.copypalette(picture);
   rt.putimage(picture);

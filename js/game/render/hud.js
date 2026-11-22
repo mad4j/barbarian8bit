@@ -23,14 +23,26 @@ const SCORE_COL_A = 97;
 const SCORE_COL_B = 185;
 
 // Life is shown as 12 cells in two rows of 6 that are erased one by one: the top row first, right to left.
-function drawLife(rt, life, firstCol) {
+// A stage with a `lifeCell` (see stage.js) has cells of that size instead of the 8x8 text cells.
+function eraseLife(g, row, col, count) {
+  const { rt, lifeCell } = g;
+  if (!lifeCell) {
+    for (let i = 0; i < count; i++) printAt(rt, row, col + i, ' ');
+    return;
+  }
+  const x = (col - 1) * lifeCell.w;
+  const y = (row - 1) * lifeCell.h;
+  rt.line(x, y, x + count * lifeCell.w - 1, y + lifeCell.h - 1, rt.bg, 'BF');
+}
+
+function drawLife(g, life, firstCol) {
   if (life === 0) {
-    printAt(rt, 1, firstCol, '      ');
-    printAt(rt, 2, firstCol, '      ');
+    eraseLife(g, 1, firstCol, 6);
+    eraseLife(g, 2, firstCol, 6);
   } else if (life >= 1 && life <= 11) {
     const row = life > 5 ? 2 : 1;
     const col = life > 5 ? life - 5 : life + 1;
-    printAt(rt, row, firstCol + col - 1, ' ');
+    eraseLife(g, row, firstCol + col - 1, 1);
   }
 }
 
@@ -84,8 +96,8 @@ export function hud(g) {
   drawScore(rt, b.score, SCORE_COL_B);
   rt.printmode(rt.FILLBACKGROUND);
   rt.font(8);
-  drawLife(rt, a.life, 1);
-  drawLife(rt, b.life, 35);
+  drawLife(g, a.life, 1);
+  drawLife(g, b.life, 35);
   if (g.showVersion === 'yes') {
     printAt(rt, 18, 16, 'FL VERSION');
     printAt(rt, 19, 19, '2012');
