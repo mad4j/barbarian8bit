@@ -12,7 +12,8 @@ directly and no longer depend on the original source or resources (kept under `_
 npm run serve        # python -m http.server 8080
 ```
 
-then open <http://localhost:8080/> and press **Start** (browsers need a click to enable audio).
+then open <http://localhost:8080/>; the game starts by itself (browsers only enable audio after the first key press or
+touch, so sound begins then).
 Any static web server works; there is nothing to install to *play*.
 
 ## How it works

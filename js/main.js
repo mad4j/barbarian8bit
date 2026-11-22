@@ -51,21 +51,21 @@ async function boot() {
     overlay.hidden = false;
   };
 
-  status.textContent = 'Ready';
-  startButton.hidden = false;
-  startButton.onclick = async () => {
-    startButton.hidden = true;
-    status.textContent = 'Loading sounds…';
-    await rt.initAudio();
-    await rt.loadSounds();
-    overlay.hidden = true;
-    rt.attachInput(window);
-    attachGestures(rt, canvas);
-    if (matchMedia('(pointer: coarse)').matches) buildTouchControls(rt, $('touch'));
-    canvas.focus();
-    rt.start(program);
+  status.textContent = 'Loading sounds…';
+  await rt.initAudio();
+  await rt.loadSounds();
+  overlay.hidden = true;
+  rt.attachInput(window);
+  attachGestures(rt, canvas);
+  if (matchMedia('(pointer: coarse)').matches) buildTouchControls(rt, $('touch'));
+  // browsers only allow sound after a gesture, so unlock it on the first key / touch / click
+  const unlock = () => {
+    rt.unlockAudio();
+    for (const ev of ['keydown', 'pointerdown']) window.removeEventListener(ev, unlock, true);
   };
-  startButton.focus();
+  for (const ev of ['keydown', 'pointerdown']) window.addEventListener(ev, unlock, true);
+  canvas.focus();
+  rt.start(program);
 }
 
 $('fs').addEventListener('click', () => toggleFullscreen(!document.fullscreenElement));

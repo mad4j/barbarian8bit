@@ -21,6 +21,7 @@ export class Runtime extends Graphics {
 
     this.sounds = new Map();
     this.audioHandles = [null];
+    this.blockedLoops = new Set();
     this.ac = null;
 
     this.down = new Set();
@@ -103,7 +104,15 @@ export class Runtime extends Graphics {
       if (!AC) return;
       this.ac = new AC();
     }
-    if (this.ac.state === 'suspended') await this.ac.resume();
+    // without a user gesture the browser keeps the context suspended and resume() stays pending: don't wait for it
+    if (this.ac.state === 'suspended') this.ac.resume().catch(() => {});
+  }
+
+  // Autoplay was refused (no gesture yet): start the blocked music again once the player interacts.
+  unlockAudio() {
+    this.initAudio();
+    for (const a of this.blockedLoops) a.play().catch(() => {});
+    this.blockedLoops.clear();
   }
 
   async loadSounds() {
@@ -140,12 +149,13 @@ export class Runtime extends Graphics {
     if (!a) return;
     a.loop = true;
     a.currentTime = 0;
-    a.play().catch(() => {});
+    a.play().catch(() => this.blockedLoops.add(a));
   }
 
   sndstop(h) {
     const a = this.audioHandles[h];
     if (!a) return;
+    this.blockedLoops.delete(a);
     a.pause();
     a.currentTime = 0;
   }
