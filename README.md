@@ -126,8 +126,9 @@ is behind each game pixel. [`assets/manifest.json`](assets/manifest.json) descri
   `tools/snakes_layout.png`, in the style of the throne painting, on a black background). The layout is a rough 3D
   render made by `python tools/draw_snakes_layout.py`: each column stands on a stepped base, and the snake is a plain
   snake (not a cobra: its head is a smooth wedge as wide as its neck, with no hood) that winds round the shaft in a
-  regular spiral of constant thickness, with its last coil crossing the front of the column and its tail falling in front
-  of the shaft and of the base to the floor of the room, where it lies. The capital is made of skulls only (a big one with
+  regular spiral of constant thickness, with its last coil crossing the front of the column and flowing, as in the C64
+  picture, into the tail without a bend: it keeps the slant of the coil over the right edge of the base (in front of it) and
+  comes down to the floor of the room, where it lies. The capital is made of skulls only (a big one with
   a smaller one at each side, no stone cap); the columns stand low on the screen, with their foot below the fighters'.
   In the open-mouth poses (`POSES`: `tilt`, `jaw`, `neck`, `arch`) the head turns down toward
   the fighter. The painting is laid over the room picture wherever it is not black, with a soft shadow on the floor;

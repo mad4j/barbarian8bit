@@ -212,14 +212,17 @@ def neck_points(pose, count=110):
     return np.column_stack([top, np.zeros(count)])
 
 
-def tail_points(end):
-    """The tail: the body goes on from `end`, where the last turn crosses the front of the column, and falls in front of the
-    shaft and of the base to the floor, where it lies curving to the right, tapering to a thin tip."""
-    x0, y0, z0 = end
-    path = [(x0, y0, z0), (CX + 82, y0 + 14, 98), (CX + 92, y0 + 58, 106), (CX + 74, y0 + 116, 116), (CX + 40, y0 + 168, 128),
-            (CX + 24, 1208, 140), (CX + 44, 1248, 150), (CX + 96, 1272, 152), (CX + 152, 1274, 152), (CX + 212, 1258, 152),
-            (CX + 276, 1266, 152), (CX + 340, 1254, 152), (CX + 410, 1250, 152)]
-    return spline(path, 420)
+def tail_points(helix):
+    """The tail: the body goes on from the end of `helix`, where the last turn crosses the front of the column, without a bend: it keeps
+    the slant of the coil (down to the right, as in the C64 picture), swings over the right edge of the base, which it
+    crosses in front, and comes down to the floor, where it curves to the right and lies, tapering to a thin tip."""
+    x0, y0, z0 = helix[-1]
+    path = [tuple(helix[-40]), tuple(helix[-20]), (x0, y0, z0), (CX + 92, y0 + 28, 98), (CX + 122, y0 + 78, 104), (CX + 130, y0 + 138, 116), (CX + 114, y0 + 196, 130),
+            (CX + 106, 1236, 142), (CX + 136, 1268, 150), (CX + 196, 1278, 152), (CX + 258, 1264, 152), (CX + 322, 1270, 152),
+            (CX + 386, 1256, 152), (CX + 450, 1252, 152)]
+    curve = spline(path, 480)
+    start = np.argmin(np.linalg.norm(curve - helix[-1], axis=1))   # the curve goes through the end of the coil: the tail begins there
+    return curve[start:]
 
 
 def draw_head(sheet, pose, dx=0, dy=0):
@@ -282,8 +285,9 @@ def main():
     # the column with the snake: the neck, the body winding round the shaft, and the tail
     add_top(sheet, POSES[0], True)
     helix = helix_points()
-    sheet.tube(helix, TUBE)
-    sheet.tube(tail_points(helix[-1]), [TUBE] * 5 + [TUBE * 0.95, TUBE * 0.8, TUBE * 0.6, TUBE * 0.4, TUBE * 0.2, 2])
+    tail = tail_points(helix)
+    taper = np.interp(np.linspace(0, 1, len(tail)), np.linspace(0, 1, 11), [TUBE] * 6 + [TUBE * 0.92, TUBE * 0.75, TUBE * 0.5, TUBE * 0.28, 2])
+    sheet.tube(np.vstack([helix, tail[1:]]), np.concatenate([np.full(len(helix), TUBE), taper[1:]]))   # one body, no seam
     # the three poses, to the right, each with the top of the column down to PANEL_BOTTOM
     for pose, dy in zip(POSES, PANEL_DY):
         panel = Sheet()

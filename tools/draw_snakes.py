@@ -32,10 +32,12 @@ PAINTING = ROOT / 'tools/snakes_painting.png'
 MASTER = 6                   # pixels per game pixel of the column that is kept here, before it is reduced further
 PX_X, PX_Y = 7.05, 7.49      # pixels of the painting per game pixel, across and down: the model paints the column a little
                              # taller than the layout, and these give back the proportions of the layout (see below)
+SPLIT_ROW = 88                # the shaft, the coils and the base (below this game row) are reduced a little more, to PX_Y_LOW,
+PX_Y_LOW = 8.11               # so that the foot of the column, which the model paints low, lands on row 196: see SPLIT_Y
 FLOOR = 200
 HEAD_TOP, HEAD_ROWS, HEAD_WIDTH = 36, 44, 62   # where the game draws the head poses (`snakeY` in stage.js), and their size: they end at row 80, a
                                                # little below where the column that the fighters walk behind starts (OVERLAY_TOP)
-SPAN = 98                    # game pixels covered by the column, from the edge of the screen: the tail reaches there
+SPAN = 104                   # game pixels covered by the column, from the edge of the screen: the tail reaches there
 CLEAR_TOP = 16               # below the panel of the scores and the life skulls, the pillars of the C64 picture are cleared from this row
 CLEAR = 34                   # the C64 picture has its pillar up to this column
 PILLAR_TOP = 60              # the game row of the top of the column (RIM_Y), the top of its skulls
@@ -50,13 +52,14 @@ OVERLAY_TOP, OVERLAY_ROWS, OVERLAY_WIDTH = 70, 120, 46
 # its foot, the column and the rows of the poses' sheet (it holds only the poses to the right of that column and above that
 # row), where the first guess of the two other head poses is, and the big skull. The top is at row 60 of the game and the
 # foot at about 196, which with the width of the shaft gives PX_X and PX_Y.
-COLUMN_X = 24
-RIM_Y = 307
-SHEET_X, SHEET_Y = 328, 1170
-POSE_GUESS = {1: (310, 342), 2: (310, 690)}
+COLUMN_X = 22
+RIM_Y = 305
+SPLIT_Y = RIM_Y + (SPLIT_ROW - PILLAR_TOP) * PX_Y   # the painting row of SPLIT_ROW: the foot is at 1391, row 196 of the game
+SHEET_X, SHEET_Y = 328, 1250
+POSE_GUESS = {1: (312, 352), 2: (312, 700)}
 # the first row of the painting that belongs to each of these poses (above it the sheet holds the picture before)
-POSE_START = {1: 500, 2: 850}
-SKULL_AREA = (665, 130, 900, 370)
+POSE_START = {1: 520, 2: 865}
+SKULL_AREA = (655, 130, 900, 380)
 # the part of the column that the head poses are lined up on: the skulls, rows and columns
 MATCH = (300, 460, 60, 290)
 # The skulls of the column never move: in every pose they are the ones of the calm pose, and only what is snake (violet,
@@ -87,11 +90,12 @@ def resized(rgb, size):
     return done[0] if rgb.ndim == 2 else np.stack(done, axis=-1)
 
 
-def window(x, y, width, height):
-    """The painting from pixel (x, y), `width` x `height` game pixels, as an RGB float array at MASTER."""
+def window(x, y, width, height, py=PX_Y):
+    """The painting from pixel (x, y), `width` x `height` game pixels, as an RGB float array at MASTER; `py` is how many
+    pixels of the painting make a game pixel down."""
     p = painting()
     x0, y0 = int(round(x)), int(round(y))
-    w, h = int(round(width * PX_X)), int(round(height * PX_Y))
+    w, h = int(round(width * PX_X)), int(round(height * py))
     crop = np.zeros((h, w, 3), np.float32)                  # what is outside the painting is black
     sy, sx = max(y0, 0), max(x0, 0)
     part = p[sy:y0 + h, sx:x0 + w]
@@ -115,11 +119,12 @@ def opaque(rgb):
 def column():
     """The painted column of player A as (RGB, alpha) float arrays at MASTER: rows HEAD_TOP to FLOOR, columns 0 to SPAN of
     the picture. Where the alpha is 0 the painting is black and the picture shows through."""
-    rows = FLOOR - HEAD_TOP
     top = RIM_Y - (PILLAR_TOP - HEAD_TOP) * PX_Y
-    rgb = window(COLUMN_X, top, SPAN, rows)
+    # the top (the head and the skulls) at PX_Y; the shaft, the coils and the base, down to the foot, a little more reduced
+    rgb = np.concatenate([window(COLUMN_X, top, SPAN, SPLIT_ROW - HEAD_TOP),
+                          window(COLUMN_X, SPLIT_Y, SPAN, FLOOR - SPLIT_ROW, PX_Y_LOW)])
     sheet = int((SHEET_X - COLUMN_X) / PX_X * MASTER)      # to the right of this the painting holds the other poses
-    cut = int((SHEET_Y - top) / PX_Y * MASTER)
+    cut = int((SPLIT_ROW - HEAD_TOP + (SHEET_Y - SPLIT_Y) / PX_Y_LOW) * MASTER)
     rgb[:cut, sheet:] = 0
     return rgb, opaque(rgb)
 
